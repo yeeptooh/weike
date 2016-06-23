@@ -304,6 +304,7 @@ UINavigationControllerDelegate
                                           AVMetadataObjectTypeCode39Code,
                                           AVMetadataObjectTypeCode93Code
                                           ]];
+//    [self.output setMetadataObjectTypes:availableMetadataObjectTypes]
 
 }
 

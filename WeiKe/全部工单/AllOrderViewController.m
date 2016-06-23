@@ -399,7 +399,9 @@ UITextFieldDelegate
         cell.selectionStyle = UITableViewCellAccessoryNone;
     }
     cell.address.text = self.orderModel.BuyerAddress;
-    NSString *timeString = self.orderModel.ExpectantTime;//dataSource[indexPath.row-1][@"ExpectantTime"];
+    NSString *timeString = self.orderModel.ExpectantTime;
+    NSLog(@"timeString = %@",timeString);
+    //dataSource[indexPath.row-1][@"ExpectantTime"];
     NSRange range = [timeString rangeOfString:@"("];
     NSRange range1 = [timeString rangeOfString:@")"];
     NSInteger loc = range.location;

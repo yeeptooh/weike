@@ -87,18 +87,13 @@
 
 - (void)startLocationTracking {
     NSLog(@"startLocationTracking");
-
-	if ([CLLocationManager locationServicesEnabled] == NO) {
-        NSLog(@"locationServicesEnabled false");
-		UIAlertView *servicesDisabledAlert = [[UIAlertView alloc] initWithTitle:@"Location Services Disabled" message:@"You currently have all location services for this device disabled" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-		[servicesDisabledAlert show];
-	} else {
+    
         CLAuthorizationStatus authorizationStatus= [CLLocationManager authorizationStatus];
         
         if(authorizationStatus == kCLAuthorizationStatusDenied || authorizationStatus == kCLAuthorizationStatusRestricted){
-            NSLog(@"authorizationStatus failed");
+//            NSLog(@"authorizationStatus failed");
         } else {
-            NSLog(@"authorizationStatus authorized");
+//            NSLog(@"authorizationStatus authorized");
             CLLocationManager *locationManager = [LocationTracker sharedLocationManager];
             locationManager.delegate = self;
             locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;
@@ -106,12 +101,22 @@
             
             if(IS_OS_8_OR_LATER) {
               [locationManager requestAlwaysAuthorization];
+                
             }
             [locationManager startUpdatingLocation];
         }
-	}
+    //alertControllerWithTitle:@"此应用的定位功能已禁用" message:@"请点击确定打开应用的定位功能" preferredStyle:UIAlertControllerStyleAlert];
+    if (!([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways)) {
+        UIAlertView *servicesDisabledAlert = [[UIAlertView alloc] initWithTitle:@"此应用的定位功能已禁用" message:@"请点击确定打开应用的定位功能" delegate:self cancelButtonTitle:@"打开" otherButtonTitles:nil];
+        [servicesDisabledAlert show];
+        return;
+    }
+//	}
 }
 
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+}
 
 - (void)stopLocationTracking {
     NSLog(@"stopLocationTracking");

@@ -115,8 +115,13 @@ AVCaptureMetadataOutputObjectsDelegate
         
         _session = [[AVCaptureSession alloc]init];
         [_session setSessionPreset:AVCaptureSessionPresetHigh];
-        [_session addInput:self.input];
-        [_session addOutput:self.output];
+        if ([_session canAddInput:self.input]) {
+            [_session addInput:self.input];
+        }
+        if ([_session canAddOutput:self.output]) {
+            [_session addOutput:self.output];
+        }
+        
     }
     return _session;
 }

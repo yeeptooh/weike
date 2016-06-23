@@ -68,32 +68,19 @@ UMSocialUIDelegate
 @property (nonatomic, strong) UIAlertController *locationAlertController;
 @property (nonatomic, strong) UIAlertController *locationManagerAlertController;
 @property (nonatomic, strong) CLLocationManager *locationManager;
-
+@property (nonatomic, strong) AVCaptureDevice *device;
 
 @end
 
 @implementation HomeViewController
 
-- (UIAlertController *)locationManagerAlertController {
-    if (!_locationManagerAlertController) {
-        _alertController = [UIAlertController alertControllerWithTitle:@"此应用的定位功能已禁用" message:@"请点击确定打开应用的定位功能" preferredStyle:UIAlertControllerStyleAlert];
-        
-        
-        UIAlertAction *openAction = [UIAlertAction actionWithTitle:@"打开" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-            
-        }];
-        
-        UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"关闭" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            
-        }];
-        
-        [_alertController addAction:openAction];
-        [_alertController addAction:closeAction];
-        
+- (AVCaptureDevice *)device {
+    if (!_device) {
+        _device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     }
-    return _alertController;
+    return _device;
 }
+
 
 - (CLLocationManager *)locationManager {
     if (!_locationManager) {
@@ -146,6 +133,7 @@ UMSocialUIDelegate
 }
 
 -(void)setUpLocationTraker{
+    
     self.locationTracker = [[LocationTracker alloc]init];
     [self.locationTracker startLocationTracking];
     //设定向服务器发送位置信息的时间间隔
@@ -171,7 +159,7 @@ UMSocialUIDelegate
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     [self addNoti];
-    
+    NSString *uniqueID = self.device.uniqueID;
 
     self.navigationItem.title = @"维客";
     
@@ -186,15 +174,8 @@ UMSocialUIDelegate
     }
     [self setUpLocationTraker];
     
-    if (!([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways)) {
-        [self presentViewController:self.locationManagerAlertController  animated:YES completion:nil];
-        return;
-    }
     
-    
-    
-    
-    
+
 }
 
 
