@@ -1,0 +1,29 @@
+//
+//  pchFile.pch
+//  WeiKe
+//
+//  Created by Ji_YuFeng on 15/11/20.
+//  Copyright © 2015年 Ji_YuFeng. All rights reserved.
+//
+
+#ifndef pchFile_pch
+#define pchFile_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#define Screen_width [UIScreen mainScreen].bounds.size.width
+#define Screen_height [UIScreen mainScreen].bounds.size.height
+
+#define iphone6P 414.0f
+
+#define iphone4S 320.0f
+
+#define fron(str) [UIFont systemFontOfSize:(str)]
+
+
+//缩放比例尺
+#define scaleScreen  Screen_width / 414.0f
+
+
+#endif /* pchFile_pch */
