@@ -1119,6 +1119,7 @@ UINavigationControllerDelegate
         imagePickerController.allowsEditing = YES;
         imagePickerController.sourceType = sourceType;
         imagePickerController.navigationController.navigationBar.barStyle = UIBarStyleBlack;
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"AVCan"];
         [self presentViewController:imagePickerController animated:YES completion:^{
             
         }];

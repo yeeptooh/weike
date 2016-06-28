@@ -68,18 +68,13 @@ UMSocialUIDelegate
 @property (nonatomic, strong) UIAlertController *locationAlertController;
 @property (nonatomic, strong) UIAlertController *locationManagerAlertController;
 @property (nonatomic, strong) CLLocationManager *locationManager;
-@property (nonatomic, strong) AVCaptureDevice *device;
+
 
 @end
 
 @implementation HomeViewController
 
-- (AVCaptureDevice *)device {
-    if (!_device) {
-        _device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    }
-    return _device;
-}
+
 
 
 - (CLLocationManager *)locationManager {
@@ -159,7 +154,7 @@ UMSocialUIDelegate
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
     [self addNoti];
-    NSString *uniqueID = self.device.uniqueID;
+    
 
     self.navigationItem.title = @"维客";
     
@@ -168,13 +163,19 @@ UMSocialUIDelegate
     // 计时器
     _timer = [NSTimer scheduledTimerWithTimeInterval:60.0f target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
     
-    if (![CLLocationManager locationServicesEnabled]) {
-        [self presentViewController:self.locationAlertController animated:YES completion:nil];
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"FirstLaunch"]) {
+        if (![CLLocationManager locationServicesEnabled]) {
+            [self presentViewController:self.locationAlertController animated:YES completion:nil];
+            
+        }else {
+            [self setUpLocationTraker];
+        }
+        
         return;
     }
+    
+    
     [self setUpLocationTraker];
-    
-    
 
 }
 
@@ -267,13 +268,20 @@ UMSocialUIDelegate
         //新增工单
         case 204:{
             
-            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-            if (status == AVAuthorizationStatusAuthorized) {
+            if (![[NSUserDefaults standardUserDefaults] boolForKey:@"AVCan"]) {
                 AddViewController *addVC = [[AddViewController alloc]init];
                 [self.navigationController pushViewController:addVC animated:YES];
+                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"AVCan"];
             }else {
-                [self presentViewController:self.alertController animated:YES completion:nil];
+                AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+                if (status == AVAuthorizationStatusAuthorized) {
+                    AddViewController *addVC = [[AddViewController alloc]init];
+                    [self.navigationController pushViewController:addVC animated:YES];
+                }else {
+                    [self presentViewController:self.alertController animated:YES completion:nil];
+                }
             }
+            
             
         }
             break;

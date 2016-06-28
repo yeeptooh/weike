@@ -197,15 +197,15 @@ UIViewControllerTransitioningDelegate
 
 - (UIAlertController *)alertController {
     if (!_alertController) {
-        _alertController = [UIAlertController alertControllerWithTitle:@"此应用的照相功能已禁用" message:@"请到设置 - 维客 - 相机打开应用的相机功能" preferredStyle:UIAlertControllerStyleAlert];
+        _alertController = [UIAlertController alertControllerWithTitle:@"此应用的照相功能已禁用" message:@"选择确定开启应用的相机功能" preferredStyle:UIAlertControllerStyleAlert];
         
         
-        UIAlertAction *openAction = [UIAlertAction actionWithTitle:@"打开" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UIAlertAction *openAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
             
         }];
         
-        UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"关闭" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UIAlertAction *closeAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             
         }];
         
@@ -1065,228 +1065,438 @@ UIViewControllerTransitioningDelegate
             // 完成
         case 102:
         {
-            
-            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-            
-            if(status == AVAuthorizationStatusAuthorized) {
+            if (![[NSUserDefaults standardUserDefaults] boolForKey:@"AVCan"]) {
                 
-                if (self.status == 5){
-                    ToCompleteTheWorkOrderViewController *toCompleteVC = [[ToCompleteTheWorkOrderViewController alloc]init];
-                    toCompleteVC.taskID = (long)self.ID;
-                    
-                    toCompleteVC.WaiterName = self.orderModel.WaiterName;
-                    toCompleteVC.BarCode = self.orderModel.BarCode;//产品条码
-                    toCompleteVC.BarCode2 = self.orderModel.BarCode2;//外机条吗dataSource[@"BarCode2"];
-                    toCompleteVC.WorkPostscript = self.orderModel.WorkPostscript;//dataSource[@"WorkPostscript"];
-                    toCompleteVC.PriceService = self.orderModel.PriceService;//安装维修dataSource[@"PriceService"];
-                    toCompleteVC.PriceMaterials = self.orderModel.PriceMaterials;//配件材料dataSource[@"PriceMaterials"];
-                    toCompleteVC.PriceAppend = self.orderModel.PriceAppend;//其他费用dataSource[@"PriceAppend"];
-                    //dataSource[@"BrokenReason"];
-                    if (toCompleteVC.BrokenReason == nil) {
-                        toCompleteVC.BrokenReason = @"";
-                    }else{
-                        toCompleteVC.BrokenReason = self.orderModel.BrokenReason;
-                    }
-                    
-                    
-                    //
-                    if (toCompleteVC.Change == nil) {
-                        toCompleteVC.Change = @"";
-                    }else{
-                        toCompleteVC.Change = self.orderModel.Change;
-                    }
-                    //dataSource[@"DCode"];
-                    if (toCompleteVC.DCode == nil) {
-                        toCompleteVC.DCode = @"";
-                    }else{
-                        toCompleteVC.DCode = self.orderModel.DCode;
-                    }
-                    //dataSource[@"CheckCode"];
-                    if (toCompleteVC.CheckCode == nil) {
-                        toCompleteVC.CheckCode = @"";
-                    }else{
-                        toCompleteVC.CheckCode = self.orderModel.CheckCode;
-                    }
-                    //dataSource[@"PCode"];
-                    if (toCompleteVC.PCode == nil) {
-                        toCompleteVC.PCode = @"";
-                    }else{
-                        toCompleteVC.PCode = self.orderModel.PCode;
-                    }
-                    //dataSource[@"PickCode"];
-                    if (toCompleteVC.PickCode == nil) {
-                        toCompleteVC.PickCode = @"";
-                    }else{
-                        toCompleteVC.PickCode = self.orderModel.PickCode;
-                    }
-                    
-                    
-                    
-                    
-                    if ([self.aButton.titleLabel.text  isEqualToString: @"上门维修"] || [self.aButton.titleLabel.text  isEqualToString: @"送点维修"]) {
-                        toCompleteVC.BrokenReason = self.orderModel.BrokenReason;//故障原因dataSource[@"BrokenReason"];
-                        toCompleteVC.Change = self.orderModel.Change;//配件更换dataSource[@"Change"];
-                        toCompleteVC.DCode = @"";
-                        toCompleteVC.CheckCode = @"";
-                        toCompleteVC.PCode = @"";
-                        toCompleteVC.PickCode = @"";
-                        toCompleteVC.theway = 1;
-                    }else if ([self.aButton.titleLabel.text  isEqualToString: @"配送"]) {
-                        toCompleteVC.theway = 2;
-                    }else {
-                        toCompleteVC.theway = 0;
-                    }
-                    
-                    
-                    
-                    
-                    [self.navigationController pushViewController:toCompleteVC animated:YES];
-                }else{
-                    
-                    
-                    //系统taskID一般是工单ID  self.ID 是工单ID
-                    
-                    //orderID一般是这一单销售ID
-                    
-                    
-                    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-                    NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=searchChangeOrder&taskId=%ld",HomeUrl,(long)self.ID];
-                    
-                    UserModel *userModel = [UserModel readUserModel];
-                    
-                    
-                    [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                        CancelViewController *cVC = [[CancelViewController alloc]init];
-                        cVC.taskID = self.ID;
+                    if (self.status == 5){
+                        ToCompleteTheWorkOrderViewController *toCompleteVC = [[ToCompleteTheWorkOrderViewController alloc]init];
+                        toCompleteVC.taskID = (long)self.ID;
                         
-                        if (!responseObject) {
-                            //调出仓
-                            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-                            ///Product.ashx?action=getWarehouse companyId
-                            NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=getWarehouse&companyId=%ld",HomeUrl,(long)userModel.CompanyID];
+                        toCompleteVC.WaiterName = self.orderModel.WaiterName;
+                        toCompleteVC.BarCode = self.orderModel.BarCode;//产品条码
+                        toCompleteVC.BarCode2 = self.orderModel.BarCode2;//外机条吗dataSource[@"BarCode2"];
+                        toCompleteVC.WorkPostscript = self.orderModel.WorkPostscript;//dataSource[@"WorkPostscript"];
+                        toCompleteVC.PriceService = self.orderModel.PriceService;//安装维修dataSource[@"PriceService"];
+                        toCompleteVC.PriceMaterials = self.orderModel.PriceMaterials;//配件材料dataSource[@"PriceMaterials"];
+                        toCompleteVC.PriceAppend = self.orderModel.PriceAppend;//其他费用dataSource[@"PriceAppend"];
+                        //dataSource[@"BrokenReason"];
+                        if (toCompleteVC.BrokenReason == nil) {
+                            toCompleteVC.BrokenReason = @"";
+                        }else{
+                            toCompleteVC.BrokenReason = self.orderModel.BrokenReason;
+                        }
+                        
+                        
+                        //
+                        if (toCompleteVC.Change == nil) {
+                            toCompleteVC.Change = @"";
+                        }else{
+                            toCompleteVC.Change = self.orderModel.Change;
+                        }
+                        //dataSource[@"DCode"];
+                        if (toCompleteVC.DCode == nil) {
+                            toCompleteVC.DCode = @"";
+                        }else{
+                            toCompleteVC.DCode = self.orderModel.DCode;
+                        }
+                        //dataSource[@"CheckCode"];
+                        if (toCompleteVC.CheckCode == nil) {
+                            toCompleteVC.CheckCode = @"";
+                        }else{
+                            toCompleteVC.CheckCode = self.orderModel.CheckCode;
+                        }
+                        //dataSource[@"PCode"];
+                        if (toCompleteVC.PCode == nil) {
+                            toCompleteVC.PCode = @"";
+                        }else{
+                            toCompleteVC.PCode = self.orderModel.PCode;
+                        }
+                        //dataSource[@"PickCode"];
+                        if (toCompleteVC.PickCode == nil) {
+                            toCompleteVC.PickCode = @"";
+                        }else{
+                            toCompleteVC.PickCode = self.orderModel.PickCode;
+                        }
+                        
+                        
+                        
+                        
+                        if ([self.aButton.titleLabel.text  isEqualToString: @"上门维修"] || [self.aButton.titleLabel.text  isEqualToString: @"送点维修"]) {
+                            toCompleteVC.BrokenReason = self.orderModel.BrokenReason;//故障原因dataSource[@"BrokenReason"];
+                            toCompleteVC.Change = self.orderModel.Change;//配件更换dataSource[@"Change"];
+                            toCompleteVC.DCode = @"";
+                            toCompleteVC.CheckCode = @"";
+                            toCompleteVC.PCode = @"";
+                            toCompleteVC.PickCode = @"";
+                            toCompleteVC.theway = 1;
+                        }else if ([self.aButton.titleLabel.text  isEqualToString: @"配送"]) {
+                            toCompleteVC.theway = 2;
+                        }else {
+                            toCompleteVC.theway = 0;
+                        }
+                        
+                        
+                        
+                        
+                        [self.navigationController pushViewController:toCompleteVC animated:YES];
+                    }else{
+                        
+                        
+                        //系统taskID一般是工单ID  self.ID 是工单ID
+                        
+                        //orderID一般是这一单销售ID
+                        
+                        
+                        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+                        NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=searchChangeOrder&taskId=%ld",HomeUrl,(long)self.ID];
+                        
+                        UserModel *userModel = [UserModel readUserModel];
+                        
+                        
+                        [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                            CancelViewController *cVC = [[CancelViewController alloc]init];
+                            cVC.taskID = self.ID;
                             
-                            [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                                
-                                
-                                for (NSDictionary *dic in responseObject[@"warehouse"]) {
-                                    [self.nameList addObject:dic[@"Name"]];
-                                    [self.fromID addObject:dic[@"ID"]];
-                                }
-                                
-                                cVC.fromID = self.fromID;
-                                for (NSString *nameString in self.nameList) {
-                                    if ([userModel.Name isEqualToString:nameString]) {
-                                        cVC.flag1 = 1;
-                                        cVC.name = nameString;
-                                        NSInteger j;
-                                        for (NSInteger i = 0; i < self.fromID.count; i++) {
-                                            if ([userModel.Name isEqualToString:nameString]) {
-                                                j = i;
-                                                break;
-                                            }
-                                        }
-                                        
-                                        cVC.from = self.fromID[j];
-                                        break ;
-                                    }else{
-                                        cVC.name = @"";
-                                        cVC.nameList = self.nameList;
-                                        cVC.flag1 = 0;
-                                    }
-                                }
-                                //调入仓
+                            if (!responseObject) {
+                                //调出仓
                                 AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+                                ///Product.ashx?action=getWarehouse companyId
                                 NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=getWarehouse&companyId=%ld",HomeUrl,(long)userModel.CompanyID];
                                 
                                 [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                    
+                                    
                                     for (NSDictionary *dic in responseObject[@"warehouse"]) {
-                                        //                                    [self.storeNameList addObject:dic[@"Name"]];
-                                        //                                    NSLog(@"%@",dic[@"Name"]);
-                                        //                                    NSLog(@"%@",dic);
-                                        //                                    [self.toID addObject:dic[@"ID"]];
-                                        if ([dic[@"Name"] isEqualToString:@"次品仓"]) {
-                                            cVC.storeName = @"次品仓";
-                                            cVC.to = dic[@"ID"];
+                                        [self.nameList addObject:dic[@"Name"]];
+                                        [self.fromID addObject:dic[@"ID"]];
+                                    }
+                                    
+                                    cVC.fromID = self.fromID;
+                                    for (NSString *nameString in self.nameList) {
+                                        if ([userModel.Name isEqualToString:nameString]) {
+                                            cVC.flag1 = 1;
+                                            cVC.name = nameString;
+                                            NSInteger j;
+                                            for (NSInteger i = 0; i < self.fromID.count; i++) {
+                                                if ([userModel.Name isEqualToString:nameString]) {
+                                                    j = i;
+                                                    break;
+                                                }
+                                            }
+                                            
+                                            cVC.from = self.fromID[j];
+                                            break ;
+                                        }else{
+                                            cVC.name = @"";
+                                            cVC.nameList = self.nameList;
+                                            cVC.flag1 = 0;
                                         }
                                     }
+                                    //调入仓
+                                    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+                                    NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=getWarehouse&companyId=%ld",HomeUrl,(long)userModel.CompanyID];
                                     
-                                    if ([cVC.storeName isEqualToString:@"次品仓"]) {
+                                    [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                        for (NSDictionary *dic in responseObject[@"warehouse"]) {
+                                            //                                    [self.storeNameList addObject:dic[@"Name"]];
+                                            //                                    NSLog(@"%@",dic[@"Name"]);
+                                            //                                    NSLog(@"%@",dic);
+                                            //                                    [self.toID addObject:dic[@"ID"]];
+                                            if ([dic[@"Name"] isEqualToString:@"次品仓"]) {
+                                                cVC.storeName = @"次品仓";
+                                                cVC.to = dic[@"ID"];
+                                            }
+                                        }
                                         
-                                    }else {
-                                        cVC.storeName = @"";
-                                    }
+                                        if ([cVC.storeName isEqualToString:@"次品仓"]) {
+                                            
+                                        }else {
+                                            cVC.storeName = @"";
+                                        }
+                                        
+                                        [self.navigationController pushViewController:cVC animated:YES];
+                                        
+                                        //两仓库不能相同
+                                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                        
+                                    }];
                                     
-                                    [self.navigationController pushViewController:cVC animated:YES];
                                     
-                                    //两仓库不能相同
                                 } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                                     
                                 }];
                                 
+                            }else{
                                 
-                            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                                
-                            }];
-                            
-                        }else{
-                            
-                            CancelPJViewController *cancelVC = [[CancelPJViewController alloc]init];
-                            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-                            //Product.ashx?action=SearchChange&changeID= 核销开单id
-                            NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=SearchChange&changeID=%@",HomeUrl,responseObject[@"changeOrder"][0][@"ID"]];
-                            //核销ID
-                            cancelVC.taskID = responseObject[@"changeOrder"][0][@"ID"];
-                            cancelVC.Warehouse = responseObject[@"changeOrder"][0][@"FromName"];
-                            [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                                
-                                cancelVC.ID = [responseObject[@"product"][0][@"ID"] integerValue];
-                                cancelVC.proCount = responseObject[@"count"];
-                                NSMutableArray *arr = [NSMutableArray array];
-                                for (NSDictionary *dic in responseObject[@"product"]) {
-                                    [arr addObject:dic];
+                                CancelPJViewController *cancelVC = [[CancelPJViewController alloc]init];
+                                AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+                                //Product.ashx?action=SearchChange&changeID= 核销开单id
+                                NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=SearchChange&changeID=%@",HomeUrl,responseObject[@"changeOrder"][0][@"ID"]];
+                                //核销ID
+                                cancelVC.taskID = responseObject[@"changeOrder"][0][@"ID"];
+                                cancelVC.Warehouse = responseObject[@"changeOrder"][0][@"FromName"];
+                                [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
                                     
-                                }
-                                NSMutableArray *countArr = [NSMutableArray array];
-                                for (NSDictionary *dic in responseObject[@"changeDatail"]) {
-                                    [countArr addObject:dic];
-                                }
-                                //                            cancelVC.Warehouse = Warehouse;
-                                cancelVC.countList = countArr;
-                                cancelVC.List = arr;
+                                    cancelVC.ID = [responseObject[@"product"][0][@"ID"] integerValue];
+                                    cancelVC.proCount = responseObject[@"count"];
+                                    NSMutableArray *arr = [NSMutableArray array];
+                                    for (NSDictionary *dic in responseObject[@"product"]) {
+                                        [arr addObject:dic];
+                                        
+                                    }
+                                    NSMutableArray *countArr = [NSMutableArray array];
+                                    for (NSDictionary *dic in responseObject[@"changeDatail"]) {
+                                        [countArr addObject:dic];
+                                    }
+                                    //                            cancelVC.Warehouse = Warehouse;
+                                    cancelVC.countList = countArr;
+                                    cancelVC.List = arr;
+                                    
+                                    [self.navigationController pushViewController:cancelVC animated:YES];
+                                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                    
+                                }];
                                 
-                                [self.navigationController pushViewController:cancelVC animated:YES];
-                            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                                
-                            }];
+                            }
                             
+                            
+                        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                            MBProgressHUD *HUD = [[MBProgressHUD alloc]initWithView:self.view];
+                            HUD.mode = MBProgressHUDModeText;
+                            HUD.label.text = @"请检查网络";
+                            [self.view addSubview:HUD];
+                            [HUD showAnimated:YES];
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.75 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                [HUD hideAnimated:YES];
+                                [HUD removeFromSuperViewOnHide];
+                            });
+                            return ;
+                        }];
+                        
+                    }
+                    
+                
+            }else {
+                AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+                
+                if(status == AVAuthorizationStatusAuthorized) {
+                    
+                    if (self.status == 5){
+                        ToCompleteTheWorkOrderViewController *toCompleteVC = [[ToCompleteTheWorkOrderViewController alloc]init];
+                        toCompleteVC.taskID = (long)self.ID;
+                        
+                        toCompleteVC.WaiterName = self.orderModel.WaiterName;
+                        toCompleteVC.BarCode = self.orderModel.BarCode;//产品条码
+                        toCompleteVC.BarCode2 = self.orderModel.BarCode2;//外机条吗dataSource[@"BarCode2"];
+                        toCompleteVC.WorkPostscript = self.orderModel.WorkPostscript;//dataSource[@"WorkPostscript"];
+                        toCompleteVC.PriceService = self.orderModel.PriceService;//安装维修dataSource[@"PriceService"];
+                        toCompleteVC.PriceMaterials = self.orderModel.PriceMaterials;//配件材料dataSource[@"PriceMaterials"];
+                        toCompleteVC.PriceAppend = self.orderModel.PriceAppend;//其他费用dataSource[@"PriceAppend"];
+                        //dataSource[@"BrokenReason"];
+                        if (toCompleteVC.BrokenReason == nil) {
+                            toCompleteVC.BrokenReason = @"";
+                        }else{
+                            toCompleteVC.BrokenReason = self.orderModel.BrokenReason;
                         }
                         
                         
-                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                        MBProgressHUD *HUD = [[MBProgressHUD alloc]initWithView:self.view];
-                        HUD.mode = MBProgressHUDModeText;
-                        HUD.label.text = @"请检查网络";
-                        [self.view addSubview:HUD];
-                        [HUD showAnimated:YES];
-                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.75 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                            [HUD hideAnimated:YES];
-                            [HUD removeFromSuperViewOnHide];
-                        });
-                        return ;
-                    }];
+                        //
+                        if (toCompleteVC.Change == nil) {
+                            toCompleteVC.Change = @"";
+                        }else{
+                            toCompleteVC.Change = self.orderModel.Change;
+                        }
+                        //dataSource[@"DCode"];
+                        if (toCompleteVC.DCode == nil) {
+                            toCompleteVC.DCode = @"";
+                        }else{
+                            toCompleteVC.DCode = self.orderModel.DCode;
+                        }
+                        //dataSource[@"CheckCode"];
+                        if (toCompleteVC.CheckCode == nil) {
+                            toCompleteVC.CheckCode = @"";
+                        }else{
+                            toCompleteVC.CheckCode = self.orderModel.CheckCode;
+                        }
+                        //dataSource[@"PCode"];
+                        if (toCompleteVC.PCode == nil) {
+                            toCompleteVC.PCode = @"";
+                        }else{
+                            toCompleteVC.PCode = self.orderModel.PCode;
+                        }
+                        //dataSource[@"PickCode"];
+                        if (toCompleteVC.PickCode == nil) {
+                            toCompleteVC.PickCode = @"";
+                        }else{
+                            toCompleteVC.PickCode = self.orderModel.PickCode;
+                        }
+                        
+                        
+                        
+                        
+                        if ([self.aButton.titleLabel.text  isEqualToString: @"上门维修"] || [self.aButton.titleLabel.text  isEqualToString: @"送点维修"]) {
+                            toCompleteVC.BrokenReason = self.orderModel.BrokenReason;//故障原因dataSource[@"BrokenReason"];
+                            toCompleteVC.Change = self.orderModel.Change;//配件更换dataSource[@"Change"];
+                            toCompleteVC.DCode = @"";
+                            toCompleteVC.CheckCode = @"";
+                            toCompleteVC.PCode = @"";
+                            toCompleteVC.PickCode = @"";
+                            toCompleteVC.theway = 1;
+                        }else if ([self.aButton.titleLabel.text  isEqualToString: @"配送"]) {
+                            toCompleteVC.theway = 2;
+                        }else {
+                            toCompleteVC.theway = 0;
+                        }
+                        
+                        
+                        
+                        
+                        [self.navigationController pushViewController:toCompleteVC animated:YES];
+                    }else{
+                        
+                        
+                        //系统taskID一般是工单ID  self.ID 是工单ID
+                        
+                        //orderID一般是这一单销售ID
+                        
+                        
+                        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+                        NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=searchChangeOrder&taskId=%ld",HomeUrl,(long)self.ID];
+                        
+                        UserModel *userModel = [UserModel readUserModel];
+                        
+                        
+                        [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                            CancelViewController *cVC = [[CancelViewController alloc]init];
+                            cVC.taskID = self.ID;
+                            
+                            if (!responseObject) {
+                                //调出仓
+                                AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+                                ///Product.ashx?action=getWarehouse companyId
+                                NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=getWarehouse&companyId=%ld",HomeUrl,(long)userModel.CompanyID];
+                                
+                                [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                    
+                                    
+                                    for (NSDictionary *dic in responseObject[@"warehouse"]) {
+                                        [self.nameList addObject:dic[@"Name"]];
+                                        [self.fromID addObject:dic[@"ID"]];
+                                    }
+                                    
+                                    cVC.fromID = self.fromID;
+                                    for (NSString *nameString in self.nameList) {
+                                        if ([userModel.Name isEqualToString:nameString]) {
+                                            cVC.flag1 = 1;
+                                            cVC.name = nameString;
+                                            NSInteger j;
+                                            for (NSInteger i = 0; i < self.fromID.count; i++) {
+                                                if ([userModel.Name isEqualToString:nameString]) {
+                                                    j = i;
+                                                    break;
+                                                }
+                                            }
+                                            
+                                            cVC.from = self.fromID[j];
+                                            break ;
+                                        }else{
+                                            cVC.name = @"";
+                                            cVC.nameList = self.nameList;
+                                            cVC.flag1 = 0;
+                                        }
+                                    }
+                                    //调入仓
+                                    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+                                    NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=getWarehouse&companyId=%ld",HomeUrl,(long)userModel.CompanyID];
+                                    
+                                    [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                        for (NSDictionary *dic in responseObject[@"warehouse"]) {
+                                            //                                    [self.storeNameList addObject:dic[@"Name"]];
+                                            //                                    NSLog(@"%@",dic[@"Name"]);
+                                            //                                    NSLog(@"%@",dic);
+                                            //                                    [self.toID addObject:dic[@"ID"]];
+                                            if ([dic[@"Name"] isEqualToString:@"次品仓"]) {
+                                                cVC.storeName = @"次品仓";
+                                                cVC.to = dic[@"ID"];
+                                            }
+                                        }
+                                        
+                                        if ([cVC.storeName isEqualToString:@"次品仓"]) {
+                                            
+                                        }else {
+                                            cVC.storeName = @"";
+                                        }
+                                        
+                                        [self.navigationController pushViewController:cVC animated:YES];
+                                        
+                                        //两仓库不能相同
+                                    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                        
+                                    }];
+                                    
+                                    
+                                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                    
+                                }];
+                                
+                            }else{
+                                
+                                CancelPJViewController *cancelVC = [[CancelPJViewController alloc]init];
+                                AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+                                //Product.ashx?action=SearchChange&changeID= 核销开单id
+                                NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=SearchChange&changeID=%@",HomeUrl,responseObject[@"changeOrder"][0][@"ID"]];
+                                //核销ID
+                                cancelVC.taskID = responseObject[@"changeOrder"][0][@"ID"];
+                                cancelVC.Warehouse = responseObject[@"changeOrder"][0][@"FromName"];
+                                [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                                    
+                                    cancelVC.ID = [responseObject[@"product"][0][@"ID"] integerValue];
+                                    cancelVC.proCount = responseObject[@"count"];
+                                    NSMutableArray *arr = [NSMutableArray array];
+                                    for (NSDictionary *dic in responseObject[@"product"]) {
+                                        [arr addObject:dic];
+                                        
+                                    }
+                                    NSMutableArray *countArr = [NSMutableArray array];
+                                    for (NSDictionary *dic in responseObject[@"changeDatail"]) {
+                                        [countArr addObject:dic];
+                                    }
+                                    //                            cancelVC.Warehouse = Warehouse;
+                                    cancelVC.countList = countArr;
+                                    cancelVC.List = arr;
+                                    
+                                    [self.navigationController pushViewController:cancelVC animated:YES];
+                                } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                                    
+                                }];
+                                
+                            }
+                            
+                            
+                        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                            MBProgressHUD *HUD = [[MBProgressHUD alloc]initWithView:self.view];
+                            HUD.mode = MBProgressHUDModeText;
+                            HUD.label.text = @"请检查网络";
+                            [self.view addSubview:HUD];
+                            [HUD showAnimated:YES];
+                            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.75 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                [HUD hideAnimated:YES];
+                                [HUD removeFromSuperViewOnHide];
+                            });
+                            return ;
+                        }];
+                        
+                    }
+                    
+                } else {
+                    
+                    
+                    [self presentViewController:self.alertController animated:YES completion:nil];
                     
                 }
-                
-            } else {
-                
-                
-                [self presentViewController:self.alertController animated:YES completion:nil];
-                
-                
-                
-                
+
             }
- 
+            
+            
         }
             break;
         case 103:
