@@ -174,7 +174,7 @@
         if (indexPath.row == 3) {
             
             if ([[NSUserDefaults standardUserDefaults]boolForKey:@"FirstLaunch"]) {
-                [button setTitle:@"400派工" forState:UIControlStateNormal];
+                [button setTitle:@"" forState:UIControlStateNormal];
             }else {
                 [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"infoResponseObject"][0][@"Name"] forState:UIControlStateNormal];
             }
@@ -183,7 +183,7 @@
  
         if (indexPath.row == 4) {
             if ([[NSUserDefaults standardUserDefaults]boolForKey:@"FirstLaunch"]) {
-                [button setTitle:@"佛山" forState:UIControlStateNormal];
+                [button setTitle:@"" forState:UIControlStateNormal];
             }else {
                 [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"cityResponseObject"][0][@"Name"] forState:UIControlStateNormal];
             }
@@ -193,7 +193,7 @@
         if (indexPath.row == 5) {
             
             if ([[NSUserDefaults standardUserDefaults]boolForKey:@"FirstLaunch"]) {
-                [button setTitle:@"顺德" forState:UIControlStateNormal];
+                [button setTitle:@"" forState:UIControlStateNormal];
             }else {
                 [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"distResponseObject"][0][@"Name"] forState:UIControlStateNormal];
             }
@@ -203,7 +203,7 @@
         if (indexPath.row == 6) {
             
             if ([[NSUserDefaults standardUserDefaults]boolForKey:@"FirstLaunch"]) {
-                [button setTitle:@"北滘" forState:UIControlStateNormal];
+                [button setTitle:@"" forState:UIControlStateNormal];
             }else {
                 [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"townResponseObject"][0][@"Name"] forState:UIControlStateNormal];
             }
@@ -406,12 +406,11 @@
 }
 
 - (void)netWorkingRequest {
+    
     UserModel *userModel = [UserModel readUserModel];
     NSString *infoURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=getinfofrom&comid=%ld",HomeUrl,(long)userModel.CompanyID];
     NSString *cityURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=getcity&comid=%ld",HomeUrl,(long)userModel.CompanyID];
     
-    
-    __weak typeof(self) weakSelf = self;
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     [manager GET:infoURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
@@ -434,7 +433,7 @@
         [[NSUserDefaults standardUserDefaults] setObject:responseObject forKey:@"cityResponseObject"];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
-        weakSelf.cityName = responseObject[0][@"Name"];
+        self.cityName = responseObject[0][@"Name"];
         NSString *ID = responseObject[0][@"ID"];
         
             for (NSDictionary *dic in responseObject) {
@@ -450,7 +449,7 @@
             [[NSUserDefaults standardUserDefaults] setObject:responseObject forKey:@"distResponseObject"];
             [[NSUserDefaults standardUserDefaults] synchronize];
             
-            weakSelf.districtsName = responseObject[0][@"Name"];
+            self.districtsName = responseObject[0][@"Name"];
             
                 for (NSDictionary *dic in responseObject) {
                     [self.discList addObject:dic[@"Name"]];
@@ -469,7 +468,7 @@
                 [[NSUserDefaults standardUserDefaults] setObject:responseObject forKey:@"townResponseObject"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
                 
-                weakSelf.townName = responseObject[0][@"Name"];
+                self.townName = responseObject[0][@"Name"];
                 
                     for (NSDictionary *dic in responseObject) {
                         [self.townList addObject:dic[@"Name"]];

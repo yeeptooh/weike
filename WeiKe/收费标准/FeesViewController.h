@@ -6,8 +6,8 @@
 //  Copyright © 2015年 Ji_YuFeng. All rights reserved.
 //
 
-#import "BaseViewController.h"
+#import "ProgressWebViewController.h"
 
-@interface FeesViewController : BaseViewController
+@interface FeesViewController : ProgressWebViewController
 
 @end

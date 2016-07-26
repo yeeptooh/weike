@@ -61,9 +61,6 @@ static BOOL isProduction = FALSE;//环境：开发isProduction值为NO,生产isP
     if (Info) {
         //处理
         
-        
-        
-        
     }
 
     
@@ -121,7 +118,6 @@ static BOOL isProduction = FALSE;//环境：开发isProduction值为NO,生产isP
 
 
 // 此两个回调方法对应可操作通知类型
-
 
 - (void)application:(UIApplication *)application handleActionWithIdentifier:(nullable NSString *)identifier
 forRemoteNotification:(NSDictionary *)userInfo

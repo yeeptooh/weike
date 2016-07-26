@@ -9,10 +9,10 @@
 #import "InformationViewController.h"
 #import "UserModel.h"
 #import "LoginViewController.h"
-#import <WebKit/WebKit.h>
+
 #import "AppDelegate.h"
 @interface InformationViewController ()
-<UIWebViewDelegate>
+
 @end
 
 @implementation InformationViewController
@@ -21,7 +21,6 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     [self setNavigationBar];
-    
     [self setWebview];
     
 }
@@ -34,31 +33,26 @@
 
 - (void)setWebview {
     
-    WKWebView *webview = [[WKWebView alloc]initWithFrame:CGRectMake(0, 0, Width ,Height-64-50)];
-//    webview.delegate = self;
-    webview.scrollView.bounces = NO;
+    self.webView.frame = CGRectMake(0, 0, Width ,Height- StatusBarAndNavigationBarHeight - 50);
+    self.webView.scrollView.scrollEnabled = NO;
     UserModel *usermodel = [UserModel readUserModel];
     NSString *urlString = [NSString stringWithFormat:@"%@/page.aspx?type=user&comid=%ld&uid=%ld",HomeUrl,(long)usermodel.CompanyID,(long)usermodel.ID];
 
     NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    [webview loadRequest:request];
-    [self.view addSubview:webview];
-    CGRect Frame;
-    if (iPhone4_4s || iPhone5_5s) {
-        Frame = CGRectMake(Width/2-70, Height-60, 140, 35);
-    }else{
-        Frame = CGRectMake(Width/2-70, Height-100, 140, 35);
-    }
+    [self.webView loadRequest:request];
+    
+    CGRect Frame = CGRectMake(0, Height - StatusBarAndNavigationBarHeight - 50, Width, 50);
+    
     UIButton *backButton = [[UIButton alloc]initWithFrame:Frame];
     backButton.backgroundColor = color(59, 165, 249, 1);
-    backButton.layer.cornerRadius = 5;
-    backButton.layer.masksToBounds = YES;
+//    backButton.layer.cornerRadius = 5;
+//    backButton.layer.masksToBounds = YES;
     [backButton setTitle:@"退出登录" forState:0];
 //    [backButton setTitleColor:[UIColor whiteColor] forState:0];
     backButton.titleLabel.font = [UIFont systemFontOfSize:15];
-    [backButton setTitleColor:color(245, 245, 245, 1) forState:UIControlStateNormal];
-    [backButton setTitleColor:color(210, 210, 210, 1) forState:UIControlStateHighlighted];
+    [backButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    
     [backButton addTarget:self action:@selector(backButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:backButton];
     
@@ -81,11 +75,5 @@
     [[NSUserDefaults standardUserDefaults] setObject:nil forKey:@"response"];
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-    [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:@"WebKitCacheModelPreferenceKey"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitDiskImageCacheEnabled"];//自己添加的，原文没有提到。
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitOfflineWebApplicationCacheEnabled"];//自己添加的，原文没有提到。
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
 
 @end

@@ -9,7 +9,7 @@
 #import "BaseViewController.h"
 
 @interface BaseViewController ()
-
+<UIGestureRecognizerDelegate>
 @end
 
 @implementation BaseViewController
@@ -33,9 +33,14 @@
     
     UIBarButtonItem  *backItem =[[UIBarButtonItem alloc]initWithCustomView: backButton];
     self.navigationItem.leftBarButtonItem = backItem;
-
+    self.navigationController.interactivePopGestureRecognizer.delegate = self;
 }
-//有navi的话，statusBarStyle由navi管理，下面代码无效，我们需要设置barStyle来改变状态栏颜色。self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    if (self.navigationController && [self.navigationController.viewControllers count] == 1) {
+        return NO;
+    }
+    return YES;
+}//有navi的话，statusBarStyle由navi管理，下面代码无效，我们需要设置barStyle来改变状态栏颜色。self.navigationController.navigationBar.barStyle = UIBarStyleBlack;
 //但是如果我们设置navi.hidden的话，下面代码有效。
 
 - (UIStatusBarStyle)preferredStatusBarStyle{

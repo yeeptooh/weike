@@ -20,7 +20,12 @@
     // Do any additional setup after loading the view.
     [self setNavigationBar];
     
-    [self setWebview];
+    UserModel *usermodel = [UserModel readUserModel];
+    NSString *urlString = [NSString stringWithFormat:@"%@/page.aspx?type=erweima&comid=%ld&uid=%ld",HomeUrl,(long)usermodel.CompanyID,(long)usermodel.ID];
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    [self.webView loadRequest:request];
     
 }
 
@@ -29,20 +34,5 @@
     self.navigationItem.title = @"二维码";
     
 }
-
-- (void)setWebview {
-    
-    UIWebView *webview = [[UIWebView alloc]initWithFrame:CGRectMake(0, 0, Width ,Height)];
-    webview.scrollView.bounces = NO;
-    UserModel *usermodel = [UserModel readUserModel];
-    NSString *urlString = [NSString stringWithFormat:@"%@/page.aspx?type=erweima&comid=%ld&uid=%ld",HomeUrl,(long)usermodel.CompanyID,(long)usermodel.ID];
-
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    [webview loadRequest:request];
-    [self.view addSubview:webview];
-}
-
-
 
 @end

@@ -8,22 +8,24 @@
 
 #import "TheWebViewController.h"
 #import "UserModel.h"
-#import <WebKit/WebKit.h>
-
 
 @interface TheWebViewController ()
-<UIWebViewDelegate>
+
 @end
 
 @implementation TheWebViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     
     [self setNavigationBar];
     
-    [self setWebview];
+    UserModel *usermodel = [UserModel readUserModel];
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@&comid=%ld&uid=%ld",HomeUrl,_urlStirng,(long)usermodel.CompanyID,(long)usermodel.ID];
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    [self.webView loadRequest:request];
     
 }
 
@@ -33,25 +35,7 @@
     self.navigationItem.title = self.theTitle;
 }
 
-- (void)setWebview {
-    WKWebView *webview = [[WKWebView alloc]initWithFrame:CGRectMake(0, 0, Width ,Height)];
-//    webview.delegate = self;
-    webview.scrollView.bounces = NO;
-    UserModel *usermodel = [UserModel readUserModel];
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@&comid=%ld&uid=%ld",HomeUrl,_urlStirng,(long)usermodel.CompanyID,(long)usermodel.ID];
-
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    [webview loadRequest:request];
-    [self.view addSubview:webview];
-}
 
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-    [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:@"WebKitCacheModelPreferenceKey"];
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitDiskImageCacheEnabled"];//自己添加的，原文没有提到。
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"WebKitOfflineWebApplicationCacheEnabled"];//自己添加的，原文没有提到。
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
 
 @end

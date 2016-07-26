@@ -6,9 +6,9 @@
 //  Copyright © 2016年 Ji_YuFeng. All rights reserved.
 //
 
-#import "BaseViewController.h"
+#import "ProgressWebViewController.h"
 
-@interface TheWebViewController : BaseViewController
+@interface TheWebViewController : ProgressWebViewController
 
 @property (nonatomic,copy) NSString *theTitle;
 @property (nonatomic,copy) NSString *urlStirng;

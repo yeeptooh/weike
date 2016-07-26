@@ -49,6 +49,7 @@
 //#define HomeUrl @"http://192.168.1.228:89/forapp"
 //缩放比例尺
 #define scaleScreen  Width / 414.0f
+#define BlueColor color(59, 165, 249, 1)
 
 
 #ifdef DEBUG

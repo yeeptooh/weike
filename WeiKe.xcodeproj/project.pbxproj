@@ -140,6 +140,7 @@
 		4A6A76601CFED3CC007C9743 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A6A765F1CFED3CC007C9743 /* CFNetwork.framework */; };
 		4A6A76621CFED44A007C9743 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A6A76611CFED44A007C9743 /* CoreFoundation.framework */; };
 		4A6A76641CFED477007C9743 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A6A76631CFED477007C9743 /* AdSupport.framework */; };
+		4A82477C1D47568600F66DCF /* ProgressWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A82477B1D47568600F66DCF /* ProgressWebViewController.m */; };
 		4A8BE10B1CEB05FD009B0C8A /* CancelTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A8BE1091CEB05FD009B0C8A /* CancelTableViewCell.m */; };
 		4A8BE10C1CEB05FD009B0C8A /* CancelTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A8BE10A1CEB05FD009B0C8A /* CancelTableViewCell.xib */; };
 		4ABB70311CC8DEB200E647D4 /* RefuseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABB70301CC8DEB200E647D4 /* RefuseViewController.m */; };
@@ -488,6 +489,8 @@
 		4A6A76611CFED44A007C9743 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		4A6A76631CFED477007C9743 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		4A719A171CA26D7D008935A1 /* MyDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDefine.h; sourceTree = "<group>"; };
+		4A82477A1D47568600F66DCF /* ProgressWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressWebViewController.h; sourceTree = "<group>"; };
+		4A82477B1D47568600F66DCF /* ProgressWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressWebViewController.m; sourceTree = "<group>"; };
 		4A8BE1081CEB05FD009B0C8A /* CancelTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CancelTableViewCell.h; sourceTree = "<group>"; };
 		4A8BE1091CEB05FD009B0C8A /* CancelTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CancelTableViewCell.m; sourceTree = "<group>"; };
 		4A8BE10A1CEB05FD009B0C8A /* CancelTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CancelTableViewCell.xib; sourceTree = "<group>"; };
@@ -1246,6 +1249,8 @@
 			children = (
 				5C5F2A721C045ECA005A7635 /* BaseViewController.h */,
 				5C5F2A731C045ECA005A7635 /* BaseViewController.m */,
+				4A82477A1D47568600F66DCF /* ProgressWebViewController.h */,
+				4A82477B1D47568600F66DCF /* ProgressWebViewController.m */,
 				5C670D1E1C0CA6F600F8BB4E /* AFNetClass.h */,
 				5C670D1F1C0CA6F600F8BB4E /* AFNetClass.m */,
 			);
@@ -1984,6 +1989,7 @@
 			files = (
 				4A67BDC21CE5E25A004FEB4A /* ProductTypeViewController.m in Sources */,
 				4A658C191CA8E03C00549395 /* LGCameraImageView.m in Sources */,
+				4A82477C1D47568600F66DCF /* ProgressWebViewController.m in Sources */,
 				4A6629F71CCB817500F9E46B /* MJRefreshStateHeader.m in Sources */,
 				5C670D3D1C0CA71300F8BB4E /* AFURLSessionManager.m in Sources */,
 				4A2C80511CB49B0E00736D44 /* InfoViewController.m in Sources */,
