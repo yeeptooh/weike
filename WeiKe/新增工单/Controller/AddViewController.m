@@ -70,16 +70,6 @@
 
 @implementation AddViewController
 
-- (MBProgressHUD *)HUD {
-    if (!_HUD) {
-        _HUD = [[MBProgressHUD alloc]initWithView:self.view];
-        _HUD.mode = MBProgressHUDModeText;
-        _HUD.label.font = [UIFont systemFontOfSize:14];
-        [self.view addSubview:_HUD];
-    }
-    return _HUD;
-}
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -310,7 +300,6 @@
             self.productInfoDetailView.frame = CGRectMake(0, StatusBarAndNavigationBarHeight + (Height - StatusBarAndNavigationBarHeight)/6, Width, 0);
             self.thirdTitleView.frame = CGRectMake(0, StatusBarAndNavigationBarHeight + (Height - StatusBarAndNavigationBarHeight)/6 , Width, (Height - StatusBarAndNavigationBarHeight)/12);
             self.businessInfoDetailView.frame = CGRectMake(0, StatusBarAndNavigationBarHeight + (Height - StatusBarAndNavigationBarHeight)*3/12, Width, 0);
-            
         }];
     }else{
         if (self.productInfoDetailView.bounds.size.height != 0) {
@@ -444,9 +433,10 @@
 }
 
 - (void)saveButtonClicked:(UIButton *)sender {
+    
+    NSLog(@"self.userDetailView.button3.titleLabel.text = %@",self.userDetailView.button3.titleLabel.text);
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     UserModel *userModel = [UserModel readUserModel];
-    
     
     UIButton *infoBtn = [self.userDetailView viewWithTag:203];
     UITextField *userName = [self.userDetailView viewWithTag:100];
@@ -482,24 +472,11 @@
         return;
     }
     UITextField *billCode = [self.userDetailView viewWithTag:102];
-//    if (billCode.text.length == 0) {
-//        
-//        _billcodeHUD = [[MBProgressHUD alloc]initWithView:self.view];
-//        _billcodeHUD.mode = MBProgressHUDModeText;
-//        _billcodeHUD.label.text = @"请填写单据号码";
-//        [self.view addSubview:_billcodeHUD];
-//        [self.billcodeHUD showAnimated:YES];
-//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//            [self.billcodeHUD hideAnimated:YES];
-//            self.billcodeHUD.removeFromSuperViewOnHide = YES;
-//        });
-//        return;
-//    }
     
-    NSInteger productBreedID = [[NSUserDefaults standardUserDefaults] integerForKey:@"productID"];
+    NSInteger productBreedID = self.productDetailView.productID;//[[NSUserDefaults standardUserDefaults] integerForKey:@"productID"];
     UIButton *breedName = [self.productDetailView viewWithTag:200];
     
-    NSString *classifyID = [[NSUserDefaults standardUserDefaults] objectForKey:@"classifyID"];
+    NSString *classifyID = [NSString stringWithFormat:@"%@",@(self.productDetailView.classifyID)];//[[NSUserDefaults standardUserDefaults] objectForKey:@"classifyID"];
     UIButton *classifyName = [self.productDetailView viewWithTag:201];
     
     UITextField *typeName = [self.productDetailView viewWithTag:102];
@@ -519,70 +496,52 @@
         return;
     }
     
+    NSString *cityID = self.userDetailView.cityID;
+    NSString *distID = self.userDetailView.discID;
+    NSString *townID = self.userDetailView.townID;
     
-    
-    NSString *cityID = [[NSUserDefaults standardUserDefaults] objectForKey:@"cityID"];
-    NSString *distID = [[NSUserDefaults standardUserDefaults] objectForKey:@"distID"];
-    NSString *townID = [[NSUserDefaults standardUserDefaults] objectForKey:@"townID"];
     UIButton *cityBtn = [self.userDetailView viewWithTag:204];
     UIButton *distBtn = [self.userDetailView viewWithTag:205];
     UIButton *townBtn = [self.userDetailView viewWithTag:206];
+    if ([cityID isEqualToString:@""]) {
+        
+    }
+    
+    if ([self.userDetailView.button2.titleLabel.text isEqualToString:@""]) {
+        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+        hud.mode = MBProgressHUDModeText;
+        hud.label.text = @"请填写市县区";
+        hud.label.font = [UIFont systemFontOfSize:14];
+        
+        [hud hideAnimated:YES afterDelay:1.0];
+        return;
+        
+    }
+    if  ([self.userDetailView.button3.titleLabel.text isEqualToString:@""]) {
+        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+        hud.mode = MBProgressHUDModeText;
+        hud.label.text = @"请填写街道";
+        hud.label.font = [UIFont systemFontOfSize:14];
+        
+        [hud hideAnimated:YES afterDelay:1.0];
+        return;
+    }
     
     UITextField *detailAddress = [self.userDetailView viewWithTag:107];
     
     NSString *serviceType = [[NSUserDefaults standardUserDefaults] objectForKey:@"serviceType"];
     
     UITextField *barCode1 = [self.productDetailView viewWithTag:104];
-//    if (barCode1.text.length == 0) {
-//        
-//        _barcode1HUD = [[MBProgressHUD alloc]initWithView:self.view];
-//        _barcode1HUD.mode = MBProgressHUDModeText;
-//        _barcode1HUD.label.text = @"请填写产品条码";
-//        [self.view addSubview:_barcode1HUD];
-//        [self.barcode1HUD showAnimated:YES];
-//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//            [self.barcode1HUD hideAnimated:YES];
-//            self.barcode1HUD.removeFromSuperViewOnHide = YES;
-//        });
-//        return;
-//    }
-    UITextField *barCode2 = [self.productDetailView viewWithTag:105];
-//    if (barCode2.text.length == 0) {
-//        _barcode2HUD = [[MBProgressHUD alloc]initWithView:self.view];
-//        _barcode2HUD.mode = MBProgressHUDModeText;
-//        _barcode2HUD.label.text = @"请填写外机条码";
-//        [self.view addSubview:_barcode2HUD];
-//        [self.barcode2HUD showAnimated:YES];
-//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//            [self.barcode2HUD hideAnimated:YES];
-//            self.barcode2HUD.removeFromSuperViewOnHide = YES;
-//        });
-//        return;
-//    }
 
-    
+    UITextField *barCode2 = [self.productDetailView viewWithTag:105];
     UITextField *buyAddress = [self.productDetailView viewWithTag:106];
-//    if (buyAddress.text.length == 0) {
-//        _buyAddressHUD = [[MBProgressHUD alloc]initWithView:self.view];
-//        _buyAddressHUD.mode = MBProgressHUDModeText;
-//        _buyAddressHUD.label.text = @"请填写购买商场";
-//        [self.view addSubview:_buyAddressHUD];
-//        [self.buyAddressHUD showAnimated:YES];
-//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//            [self.buyAddressHUD hideAnimated:YES];
-//            self.buyAddressHUD.removeFromSuperViewOnHide = YES;
-//        });
-//        return;
-//    }
-    NSString *serviceID = [[NSUserDefaults standardUserDefaults] objectForKey:@"serviceID"];
-    NSString *serviceName = [[NSUserDefaults standardUserDefaults] objectForKey:@"serivcePro"];
-    
+
+    NSString *serviceID = self.businessDetailView.serviceID;
+    NSString *serviceName = self.businessDetailView.serivcePro;
     
     UITextField *task = [self.businessDetailView viewWithTag:103];
     
-    
-    
-        NSString *time = [[NSUserDefaults standardUserDefaults] objectForKey:@"date"];
+    NSString *time = self.businessDetailView.date;//[[NSUserDefaults standardUserDefaults] objectForKey:@"date"];
     if (time.length == 0) {
         
         _timeHUD = [[MBProgressHUD alloc]initWithView:self.view];
@@ -597,12 +556,52 @@
         });
         return;
     }
-    NSString *addURL = [NSString stringWithFormat:@"%@/Task.ashx?action=addTask&comid=%ld&InfoFrom=%@&BuyerName=%@&BuyerPhone=%@&ProductBreedID=%ld&ProductBreed=%@&ProductClassifyID=%@&ProductClassify=%@&ProductType=%@&ProductCount=%@&BuyerCityID=%@&BuyerCity=%@&BuyerDistrictID=%@&BuyerDistrict=%@&BuyerTownID=%@&BuyerTown=%@&BuyerAddress=%@&RepairType=%@&BuyAddress=%@&ServiceClassifyID=%@&ServiceClassify=%@&ExpectantTime=%@&TaskPostscript=%@&WaiterID=%ld&WaiterName=%@&BillCode=%@&BarCode=%@&BarCode2=%@",HomeUrl,(long)userModel.CompanyID,infoBtn.titleLabel.text,userName.text,userPhone.text,(long)productBreedID,breedName.titleLabel.text,classifyID,classifyName.titleLabel.text,typeName.text,productCount.text,cityID,cityBtn.titleLabel.text,distID,distBtn.titleLabel.text,townID,townBtn.titleLabel.text,detailAddress.text,serviceName,buyAddress.text,serviceID,serviceType,time,task.text,(long)userModel.ID,userModel.UserName,billCode.text,barCode1.text,barCode2.text];
+    
+    
+    NSDictionary *params = @{
+                             @"comid":@(userModel.CompanyID),
+                             @"InfoFrom":infoBtn.titleLabel.text,
+                             @"BuyerName":userName.text,
+                             @"BuyerPhone":userPhone.text,
+                             @"ProductBreedID":@(productBreedID),
+                             @"ProductBreed":breedName.titleLabel.text,
+                             @"ProductClassifyID":classifyID,
+                             @"ProductClassify":classifyName.titleLabel.text,
+                             @"ProductType":typeName.text,
+                             @"ProductCount":productCount.text,
+                             @"BuyerCityID":cityID,
+                             @"BuyerCity":cityBtn.titleLabel.text,
+                             @"BuyerDistrictID":distID,
+                             @"BuyerDistrict":distBtn.titleLabel.text,
+                             @"BuyerTownID":townID,
+                             @"BuyerTown":townBtn.titleLabel.text,
+                             @"BuyerAddress":detailAddress.text,
+                             @"RepairType":serviceName,
+                             @"BuyAddress":buyAddress.text,
+                             @"ServiceClassifyID":serviceID,
+                             @"ServiceClassify":serviceType,
+                             @"ExpectantTime":time,
+                             @"TaskPostscript":task.text,
+                             @"WaiterID":@(userModel.ID),
+                             @"WaiterName":userModel.UserName,
+                             @"BillCode":billCode.text,
+                             @"BarCode":barCode1.text,
+                             @"BarCode2":barCode2.text
+                             };
+    NSLog(@"params = %@",params);
+    
+    NSString *addURL = [NSString stringWithFormat:@"%@/Task.ashx?action=addTask",HomeUrl];
 
     addURL = [addURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    [manager GET:addURL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
-            self.HUD.label.text = @"保存成功";
+
+    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+    [manager GET:addURL parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"%@",responseObject);
+        self.HUD = [[MBProgressHUD alloc]initWithView:self.view];
+        self.HUD.mode = MBProgressHUDModeText;
+        self.HUD.label.font = [UIFont systemFontOfSize:14];
+        [self.view addSubview:self.HUD];
+        self.HUD.label.text = @"保存成功";
         [[NSNotificationCenter defaultCenter] postNotificationName:kUpdateRedLabel object:nil];
         [self.HUD showAnimated:YES];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -612,14 +611,12 @@
 
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        self.HUD.label.text = @"保存失败，请检查";
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            
-            [self.HUD hideAnimated:YES];
-            self.HUD.label.text = @"Loading...";
-            
-        });
-        
+        NSLog(@"%@",error);
+        MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+        hud.mode = MBProgressHUDModeText;
+        hud.label.font = font(14);
+        hud.label.text = @"保存失败，请检查";
+        [hud hideAnimated:YES afterDelay:1.0];
         
     }];
 }

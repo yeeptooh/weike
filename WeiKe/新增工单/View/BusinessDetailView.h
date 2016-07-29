@@ -15,4 +15,7 @@ UITableViewDataSource,
 UITextFieldDelegate
 >
 @property (nonatomic, assign) CGRect baseFrame;
+@property (nonatomic, strong) NSString *serviceID;
+@property (nonatomic, strong) NSString *serivcePro;
+@property (nonatomic, strong) NSString *date;
 @end

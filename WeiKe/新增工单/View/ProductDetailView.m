@@ -26,17 +26,15 @@ UITextFieldDelegate,
 AVCaptureMetadataOutputObjectsDelegate
 >
 @property (nonatomic, strong) NSMutableArray *breedList;
-@property (nonatomic, assign) NSInteger productID;
+@property (nonatomic, strong) NSMutableArray *productNameList;
 @property (nonatomic, strong) NSMutableArray *productIDList;
-
-@property (nonatomic, strong) NSMutableArray *classifyList;
+@property (nonatomic, strong) NSMutableArray *classifyNameList;
+@property (nonatomic, strong) NSMutableArray *classifyIDList;
 @property (nonatomic, strong) UIView *animateLine;
-
 @property (nonatomic, strong) ScanCodeViewController *scanVC;
 @property (nonatomic, strong) AVCaptureDevice *device;
 @property (nonatomic, strong) AVCaptureDeviceInput *input;
 @property (nonatomic, strong) AVCaptureMetadataOutput *output;
-
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 
@@ -57,6 +55,13 @@ AVCaptureMetadataOutputObjectsDelegate
     return _breedList;
 }
 
+- (NSMutableArray *)productNameList {
+    if (!_productNameList) {
+        _productNameList = [NSMutableArray array];
+    }
+    return _productNameList;
+}
+
 - (NSMutableArray *)productIDList{
     if (!_productIDList) {
         _productIDList = [NSMutableArray array];
@@ -64,11 +69,18 @@ AVCaptureMetadataOutputObjectsDelegate
     return _productIDList;
 }
 
-- (NSMutableArray *)classifyList{
-    if (!_classifyList) {
-        _classifyList = [NSMutableArray array];
+- (NSMutableArray *)classifyNameList{
+    if (!_classifyNameList) {
+        _classifyNameList = [NSMutableArray array];
     }
-    return _classifyList;
+    return _classifyNameList;
+}
+
+- (NSMutableArray *)classifyIDList{
+    if (!_classifyIDList) {
+        _classifyIDList = [NSMutableArray array];
+    }
+    return _classifyIDList;
 }
 
 //AVMediaTypeAudio 打来麦克
@@ -317,9 +329,9 @@ AVCaptureMetadataOutputObjectsDelegate
         if (indexPath.row == 0) {
             
             if ([[NSUserDefaults standardUserDefaults] boolForKey:@"FirstLaunch"]) {
-                [button setTitle:@"美的" forState:UIControlStateNormal];
+                [button setTitle:@"" forState:UIControlStateNormal];
             }else {
-                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"breedList"][0][@"Name"] forState:UIControlStateNormal];
+                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"productName"] forState:UIControlStateNormal];
             }
             
  
@@ -327,9 +339,9 @@ AVCaptureMetadataOutputObjectsDelegate
         
         if (indexPath.row == 1) {
             if ([[NSUserDefaults standardUserDefaults] boolForKey:@"FirstLaunch"]) {
-                [button setTitle:@"电热水器" forState:UIControlStateNormal];
+                [button setTitle:@"" forState:UIControlStateNormal];
             }else {
-                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"name"] forState:UIControlStateNormal];
+                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"classifyName"] forState:UIControlStateNormal];
             }
         }
  
@@ -397,53 +409,30 @@ AVCaptureMetadataOutputObjectsDelegate
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     [manager GET:breedURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
-            self.breedList = responseObject[@"list"];
-        
-        [[NSUserDefaults standardUserDefaults] setObject:self.breedList forKey:@"breedList"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
-        NSMutableArray *breedNameList = [NSMutableArray array];
-        for (NSDictionary *dic in self.breedList) {
-            [breedNameList addObject:dic[@"Name"]];
+            
+        for (NSDictionary *dic in responseObject[@"list"]) {
+            [self.productNameList addObject:dic[@"Name"]];
+            [self.productIDList addObject:dic[@"ID"]];
         }
-        
-        [[NSUserDefaults standardUserDefaults] setObject:breedNameList forKey:@"breedNameList"];
-        
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
-            for (NSDictionary *dic in self.breedList) {
-                [self.productIDList addObject:dic[@"ID"]];
-            }
-            [[NSUserDefaults standardUserDefaults] setObject:self.productIDList forKey:@"productIDList"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-        
-        self.productID = [responseObject[@"list"][0][@"ID"] integerValue];
+        self.productID = [self.productIDList[0] integerValue];
+        [[NSUserDefaults standardUserDefaults] setObject:self.productNameList forKey:@"productNameList"];
+        [[NSUserDefaults standardUserDefaults] setObject:self.productNameList[0] forKey:@"productName"];
         [[NSUserDefaults standardUserDefaults] setInteger:self.productID forKey:@"productID"];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
         NSString *classifyURLString = [NSString stringWithFormat:@"%@/Task.ashx?action=getproductclassify&comid=%ld&parent=%ld",HomeUrl,(long)userModel.CompanyID,(long)self.productID];
         
         [manager GET:classifyURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            NSString *name = responseObject[@"list"][0][@"Name"];
-            NSLog(@"----%@",responseObject);
-            
-            
-            [[NSUserDefaults standardUserDefaults] setObject:name forKey:@"name"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-            
-            NSMutableArray *IDList = [NSMutableArray array];
             
                 for (NSDictionary *dic in responseObject[@"list"]) {
-                    [self.classifyList addObject:dic[@"Name"]];
-                    [IDList addObject:dic[@"ID"]];
+                    [self.classifyNameList addObject:dic[@"Name"]];
+                    [self.classifyIDList addObject:dic[@"ID"]];
                 }
+            self.classifyID = [self.classifyIDList[0] integerValue];
             
-            [[NSUserDefaults standardUserDefaults] setObject:IDList forKey:@"IDList"];
+            [[NSUserDefaults standardUserDefaults] setObject:self.classifyNameList forKey:@"classifyNameList"];
+            [[NSUserDefaults standardUserDefaults] setObject:self.classifyNameList[0] forKey:@"classifyName"];
             [[NSUserDefaults standardUserDefaults] synchronize];
-            
-            [[NSUserDefaults standardUserDefaults] setObject:IDList[0] forKey:@"classifyID"];
-            [[NSUserDefaults standardUserDefaults]synchronize];
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             
@@ -474,7 +463,7 @@ AVCaptureMetadataOutputObjectsDelegate
         BreedViewController *breedVC = [[BreedViewController alloc]init];
 
         
-        breedVC.breedList = [[NSUserDefaults standardUserDefaults]objectForKey:@"breedNameList"];
+        breedVC.breedList = self.productNameList;
 
         breedVC.returnBreed = ^(NSString *name, NSInteger row){
             [sender setTitle:name forState:UIControlStateNormal];
@@ -482,31 +471,26 @@ AVCaptureMetadataOutputObjectsDelegate
             UserModel *userModel = [UserModel readUserModel];
             AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
             NSInteger ID = [self.productIDList[row] integerValue];
-            [[NSUserDefaults standardUserDefaults] setInteger:ID forKey:@"productID"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            self.productID = ID;
             NSString *classifyURLString = [NSString stringWithFormat:@"%@/Task.ashx?action=getproductclassify&comid=%ld&parent=%ld",HomeUrl,(long)userModel.CompanyID,(long)ID];
             NSLog(@"%@",classifyURLString);
             
             [manager GET:classifyURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
                 
-                NSMutableArray *list = [NSMutableArray array];
-                for (NSDictionary *dic in responseObject[@"list"]) {
-                    [list addObject:dic[@"Name"]];
+                if (self.classifyNameList.count) {
+                    [self.classifyNameList removeAllObjects];
+                    [self.classifyIDList  removeAllObjects];
                 }
                 
-                NSMutableArray *IDList = [NSMutableArray array];
                 for (NSDictionary *dic in responseObject[@"list"]) {
-                    [IDList addObject:dic[@"ID"]];
+                    [self.classifyNameList addObject:dic[@"Name"]];
+                    [self.classifyIDList addObject:dic[@"ID"]];
                 }
                 
-                [[NSUserDefaults standardUserDefaults] setObject:IDList forKey:@"IDList"];
-                [[NSUserDefaults standardUserDefaults]synchronize];
                 
-                [self.classifyList removeAllObjects];
-                self.classifyList  = list;
                 
                 UIButton *btn = [self viewWithTag:201];
-                [btn setTitle:list[0] forState:UIControlStateNormal];
+                [btn setTitle:self.classifyNameList[0] forState:UIControlStateNormal];
                 
                 
             } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -520,14 +504,11 @@ AVCaptureMetadataOutputObjectsDelegate
     }else {
         
         ClassifyViewController *classifyVC = [[ClassifyViewController alloc]init];
-        classifyVC.classifyList = self.classifyList;
+        classifyVC.classifyList = self.classifyNameList;
         classifyVC.returnClassify = ^(NSString *name , NSInteger row){
             [sender setTitle:name forState:UIControlStateNormal];
-            NSMutableArray *cliassifyIDList = [[NSUserDefaults standardUserDefaults]objectForKey:@"IDList"];
- 
-            [[NSUserDefaults standardUserDefaults] setInteger:[cliassifyIDList[row] integerValue] forKey:@"classifyID"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
             
+            self.classifyID = [self.classifyIDList[row] integerValue];
             
         };
         
@@ -656,7 +637,6 @@ AVCaptureMetadataOutputObjectsDelegate
     if (metadataObjects.count > 0) {
         AVMetadataMachineReadableCodeObject *obj = metadataObjects[0];
         
-        
         if ([[NSUserDefaults standardUserDefaults] integerForKey:@"Aztec"] == 1) {
             UITextField *textfield = [self viewWithTag:104];
             textfield.text = obj.stringValue;
@@ -673,9 +653,6 @@ AVCaptureMetadataOutputObjectsDelegate
     
     
 }
-
-
-
 
 
 - (UIViewController*)viewController {

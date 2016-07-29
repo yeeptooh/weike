@@ -16,7 +16,9 @@
 #import "DatePickerViewController.h"
 
 @interface BusinessDetailView()
+
 @property (nonatomic, strong) NSMutableArray *serviceList;
+@property (nonatomic, strong) NSMutableArray *servicetIDList;
 @end
 
 @implementation BusinessDetailView
@@ -26,6 +28,13 @@
         _serviceList = [NSMutableArray array];
     }
     return _serviceList;
+}
+
+- (NSMutableArray *)servicetIDList {
+    if (!_servicetIDList) {
+        _servicetIDList = [NSMutableArray array];
+    }
+    return _servicetIDList;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style {
@@ -96,9 +105,9 @@
    
         if (indexPath.row == 0) {
             if ([[NSUserDefaults standardUserDefaults] boolForKey:@"FirstLaunch"]) {
-                [button setTitle:@"配送" forState:UIControlStateNormal];
+                [button setTitle:@"" forState:UIControlStateNormal];
             }else {
-                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"serviceList"][0] forState:UIControlStateNormal];
+                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"serviceType"] forState:UIControlStateNormal];
             }
   
         }
@@ -143,28 +152,20 @@
     /*
      Task.ashx?action=getservicetype&comid= parent(产品类型)
      */
-    [[NSUserDefaults standardUserDefaults] setObject:@"保内" forKey:@"serivcePro"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    self.serivcePro = @"保内";
+    
     NSInteger productID = [[NSUserDefaults standardUserDefaults] integerForKey:@"productID"];
     NSString *serviceURLString = [NSString stringWithFormat:@"%@/Task.ashx?action=getservicetype&comid=%ld&parent=%ld",HomeUrl,(long)userModel.CompanyID,(long)productID];
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     [manager GET:serviceURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSMutableArray *IDList = [NSMutableArray array];
         
         for (NSDictionary *dic in responseObject[@"servicetype"]) {
             [self.serviceList addObject:dic[@"Name"]];
-            [IDList addObject:dic[@"ID"]];
+            [self.servicetIDList addObject:dic[@"ID"]];
         }
         
         
-        [[NSUserDefaults standardUserDefaults] setObject:IDList forKey:@"serviceIDList"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
-        [[NSUserDefaults standardUserDefaults] setObject:IDList[0] forKey:@"serviceID"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
-        [[NSUserDefaults standardUserDefaults] setObject:self.serviceList forKey:@"serviceList"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        self.serviceID = self.servicetIDList[0];
         
         [[NSUserDefaults standardUserDefaults] setObject:self.serviceList[0] forKey:@"serviceType"];
         [[NSUserDefaults standardUserDefaults] synchronize];
@@ -188,9 +189,7 @@
             [sender setTitle:name forState:UIControlStateNormal];
             [[NSUserDefaults standardUserDefaults] setObject:self.serviceList[row] forKey:@"serviceType"];
             [[NSUserDefaults standardUserDefaults] synchronize];
-            
-            [[NSUserDefaults standardUserDefaults] setObject:[[NSUserDefaults standardUserDefaults] objectForKey:@"serviceIDList"][row] forKey:@"serviceID"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            self.serviceID = self.servicetIDList[row];
             
         };
         
@@ -203,13 +202,11 @@
         typeVC.returnType = ^(NSInteger row){
             if (row == 0) {
                 [sender setTitle:@"保内" forState:UIControlStateNormal];
-                [[NSUserDefaults standardUserDefaults] setObject:@"保内" forKey:@"serivcePro"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
+                
             }
             if (row == 1) {
                 [sender setTitle:@"保外" forState:UIControlStateNormal];
-                [[NSUserDefaults standardUserDefaults] setObject:@"保外" forKey:@"serivcePro"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
+                self.serivcePro = @"保外";
             }
         };
         
@@ -219,8 +216,7 @@
         DatePickerViewController *datePickerVC = [[DatePickerViewController alloc]init];
         datePickerVC.returnDate = ^(NSString *dateStr){
             [sender setTitle:dateStr forState:UIControlStateNormal];
-            [[NSUserDefaults standardUserDefaults] setObject:dateStr forKey:@"date"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            self.date = dateStr;
             
         };
         

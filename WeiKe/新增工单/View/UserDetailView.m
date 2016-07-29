@@ -30,6 +30,8 @@
 @property (nonatomic, strong) NSMutableArray *discIDList;
 @property (nonatomic, strong) NSMutableArray *townIDList;
 
+@property (nonatomic, strong) UIButton *button1;
+
 @end
 
 @implementation UserDetailView
@@ -176,36 +178,37 @@
             if ([[NSUserDefaults standardUserDefaults]boolForKey:@"FirstLaunch"]) {
                 [button setTitle:@"" forState:UIControlStateNormal];
             }else {
-                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"infoResponseObject"][0][@"Name"] forState:UIControlStateNormal];
+                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"infoResponseObject"][0] forState:UIControlStateNormal];
             }
 
         }
  
         if (indexPath.row == 4) {
+            self.button1 = button;
             if ([[NSUserDefaults standardUserDefaults]boolForKey:@"FirstLaunch"]) {
                 [button setTitle:@"" forState:UIControlStateNormal];
             }else {
-                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"cityResponseObject"][0][@"Name"] forState:UIControlStateNormal];
+                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"cityResponseObject"][0] forState:UIControlStateNormal];
             }
 
         }
 
         if (indexPath.row == 5) {
-            
+            self.button2 = button;
             if ([[NSUserDefaults standardUserDefaults]boolForKey:@"FirstLaunch"]) {
                 [button setTitle:@"" forState:UIControlStateNormal];
             }else {
-                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"distResponseObject"][0][@"Name"] forState:UIControlStateNormal];
+                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"distResponseObject"][0] forState:UIControlStateNormal];
             }
 
         }
 
         if (indexPath.row == 6) {
-            
+            self.button3 = button;
             if ([[NSUserDefaults standardUserDefaults]boolForKey:@"FirstLaunch"]) {
                 [button setTitle:@"" forState:UIControlStateNormal];
             }else {
-                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"townResponseObject"][0][@"Name"] forState:UIControlStateNormal];
+                [button setTitle:[[NSUserDefaults standardUserDefaults] objectForKey:@"townResponseObject"][0] forState:UIControlStateNormal];
             }
 
         }
@@ -228,70 +231,73 @@
     }else if (sender.tag == 204) {
         CityViewController *cityVC = [[CityViewController alloc]init];
         cityVC.cityList = self.cityList;
-        
+        __weak typeof(self) weakSelf = self;
         cityVC.returnCity = ^(NSString *cityName,NSInteger row){
             [sender setTitle:cityName forState:UIControlStateNormal];
             
             AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
             
             UserModel *userModel = [UserModel readUserModel];
-            
+            weakSelf.cityID = [NSString stringWithFormat:@"%@",weakSelf.cityIDList[row]];
             
             NSString *districtsURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=getdistricts&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,self.cityIDList[row]];
             
-            [[NSUserDefaults standardUserDefaults] setObject:self.cityIDList[row] forKey:@"cityID"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
             
-
             [manager GET:districtsURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                [self.discList removeAllObjects];
-                [self.discIDList removeAllObjects];
-                for (NSDictionary *dic in responseObject) {
-                    [self.discList addObject:dic[@"Name"]];
-                    [self.discIDList addObject:dic[@"ID"]];
-                }
-                
-
-                
-                UIButton *btn = [self viewWithTag:205];
-                if (self.discList.count != 0) {
+               
+                if ([(NSArray *)responseObject count]) {
+                    if (self.discList.count) {
+                        [self.discList removeAllObjects];
+                        [self.discIDList removeAllObjects];
+                    }
                     
-                    [[NSUserDefaults standardUserDefaults] setObject:self.discIDList[0] forKey:@"distID"];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
+                    for (NSDictionary *dic in responseObject) {
+                        [self.discList addObject:dic[@"Name"]];
+                        [self.discIDList addObject:dic[@"ID"]];
+                    }
                     
-                    [btn setTitle:self.discList[0] forState:UIControlStateNormal];
+                    weakSelf.discID = [NSString stringWithFormat:@"%@",weakSelf.discIDList[0]];
                     
-                    NSString *townURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=gettown&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,self.discIDList[0]];
+                    [self.button2 setTitle:self.discList[0] forState:UIControlStateNormal];
+                    
+                    NSString *townURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=gettown&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,weakSelf.discID];
+                    
                     [manager GET:townURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
                         
-                        [self.townList removeAllObjects];
-                        [self.townIDList removeAllObjects];
-                        for (NSDictionary *dic in responseObject) {
-                            [self.townList addObject:dic[@"Name"]];
-                            [self.townIDList addObject:dic[@"ID"]];
-                        }
-                        NSLog(@"-----%@",self.townIDList);
-                        
-                        UIButton *btn = [self viewWithTag:206];
-                        if (self.townList.count != 0) {
-                            [[NSUserDefaults standardUserDefaults] setObject:self.townIDList[0] forKey:@"townID"];
-                            [[NSUserDefaults standardUserDefaults] synchronize];
+                        if ([(NSArray *)responseObject count]) {
                             
-                            [btn setTitle:self.townList[0] forState:UIControlStateNormal];
+                            if (weakSelf.townList.count) {
+                                [self.townList removeAllObjects];
+                                [self.townIDList removeAllObjects];
+                            }
+                            
+                            for (NSDictionary *dic in responseObject) {
+                                [self.townList addObject:dic[@"Name"]];
+                                [self.townIDList addObject:dic[@"ID"]];
+                            }
+                            
+                            weakSelf.townID = [NSString stringWithFormat:@"%@",weakSelf.townIDList[0]];
+                            
+                            [self.button3 setTitle:self.townList[0] forState:UIControlStateNormal];
+                            
                         }else{
-                            [btn setTitle:@"" forState:UIControlStateNormal];
+                            weakSelf.townID = [NSString stringWithFormat:@""];
+                            [self.button3 setTitle:@"" forState:UIControlStateNormal];
                         }
                         
                     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                         
                     }];
-                }else{
-                    [btn setTitle:@"" forState:UIControlStateNormal];
                     
+                }else{
+                    
+                    [self.button2 setTitle:@"" forState:UIControlStateNormal];
+                    weakSelf.discID = [NSString stringWithFormat:@""];
+                    weakSelf.townID = [NSString stringWithFormat:@""];
                     [self.townList removeAllObjects];
                     [self.townIDList removeAllObjects];
-                    UIButton *btn = [self viewWithTag:206];
-                    [btn setTitle:@"" forState:UIControlStateNormal];
+                    
+                    [self.button3 setTitle:@"" forState:UIControlStateNormal];
                     
                 }
  
@@ -306,6 +312,7 @@
     }else if (sender.tag == 205) {
         DistricsViewController *discVC = [[DistricsViewController alloc]init];
         discVC.discList = self.discList;
+        __weak typeof(self) weakSelf = self;
         discVC.returnDisc = ^(NSString *discName,NSInteger row){
             [sender setTitle:discName forState:UIControlStateNormal];
             AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
@@ -313,28 +320,31 @@
             UserModel *userModel = [UserModel readUserModel];
             
             NSString *townURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=gettown&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,self.discIDList[row]];
-            [[NSUserDefaults standardUserDefaults] setObject:self.discIDList[row] forKey:@"distID"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            weakSelf.discID = [NSString stringWithFormat:@"%@",weakSelf.discIDList[row]];
             
-            UIButton *btn = [self viewWithTag:206];
+            
             [manager GET:townURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                [self.townIDList removeAllObjects];
-                [self.townList removeAllObjects];
-                for (NSDictionary *dic in responseObject) {
-                    [self.townList addObject:dic[@"Name"]];
-                    [self.townIDList addObject:dic[@"ID"]];
+                if ([(NSArray *)responseObject count]) {
+                    if (weakSelf.townIDList.count) {
+                        [weakSelf.townIDList removeAllObjects];
+                        [weakSelf.townList removeAllObjects];
+                    }
                     
-                }
-                
-                
-                if (self.townList.count != 0) {
+                    for (NSDictionary *dic in responseObject) {
+                        [weakSelf.townList addObject:dic[@"Name"]];
+                        [weakSelf.townIDList addObject:dic[@"ID"]];
+                        
+                    }
                     
-                    [[NSUserDefaults standardUserDefaults] setObject:self.townIDList[0] forKey:@"townID"];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
                     
-                    [btn setTitle:self.townList[0] forState:UIControlStateNormal];
+                    
+                    weakSelf.townID = [NSString stringWithFormat:@"%@",weakSelf.townIDList[0]];
+                    
+                    [self.button3 setTitle:weakSelf.townList[0] forState:UIControlStateNormal];
+                    
                 }else{
-                    [btn setTitle:@"" forState:UIControlStateNormal];
+                    weakSelf.townID = [NSString stringWithFormat:@"%@",@""];
+                    [self.button3 setTitle:@"" forState:UIControlStateNormal];
                 }
                 
             } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -346,11 +356,10 @@
     }else {
         TownViewController *townVC = [[TownViewController alloc]init];
         townVC.townList = self.townList;
+        __weak typeof(self) weakSelf = self;
         townVC.returnTown = ^(NSString *townName, NSInteger row){
             [sender setTitle:townName forState:UIControlStateNormal];
-            [[NSUserDefaults standardUserDefaults] setObject:self.townIDList[row] forKey:@"townID"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-            
+            weakSelf.townID = [NSString stringWithFormat:@"%@",weakSelf.townIDList[row]];
         };
         
         [[self viewController] presentViewController:townVC animated:YES completion:nil];
@@ -413,13 +422,13 @@
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     [manager GET:infoURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        
-        [[NSUserDefaults standardUserDefaults] setObject:responseObject forKey:@"infoResponseObject"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
         for (NSDictionary *dic in responseObject) {
             [self.infoList addObject:dic[@"Name"]];
             
         }
+        
+        [[NSUserDefaults standardUserDefaults] setObject:self.infoList forKey:@"infoResponseObject"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
 
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -430,24 +439,20 @@
     
     [manager GET:cityURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-        [[NSUserDefaults standardUserDefaults] setObject:responseObject forKey:@"cityResponseObject"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
         self.cityName = responseObject[0][@"Name"];
-        NSString *ID = responseObject[0][@"ID"];
+        self.cityID = [NSString stringWithFormat:@"%@",responseObject[0][@"ID"]];
         
             for (NSDictionary *dic in responseObject) {
                 [self.cityList addObject:dic[@"Name"]];
                 [self.cityIDList addObject:dic[@"ID"]];
             }
-        [[NSUserDefaults standardUserDefaults] setObject:ID forKey:@"cityID"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
         
-        NSString *districtsURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=getdistricts&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,ID];
+        [[NSUserDefaults standardUserDefaults] setObject:self.cityList forKey:@"cityResponseObject"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+
+        NSString *districtsURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=getdistricts&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,self.cityID];
         
         [manager GET:districtsURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            [[NSUserDefaults standardUserDefaults] setObject:responseObject forKey:@"distResponseObject"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
             
             self.districtsName = responseObject[0][@"Name"];
             
@@ -455,18 +460,14 @@
                     [self.discList addObject:dic[@"Name"]];
                     [self.discIDList addObject:dic[@"ID"]];
                 }
-            
-            
-            NSString *ID = responseObject[0][@"ID"];
-            [[NSUserDefaults standardUserDefaults] setObject:ID forKey:@"distID"];
+            [[NSUserDefaults standardUserDefaults] setObject:self.discList forKey:@"distResponseObject"];
             [[NSUserDefaults standardUserDefaults] synchronize];
             
-            NSString *townURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=gettown&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,ID];
+            self.discID = [NSString stringWithFormat:@"%@",responseObject[0][@"ID"]];
+
+            NSString *townURLString = [NSString stringWithFormat:@"%@/Common.ashx?action=gettown&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,self.discID];
             
             [manager GET:townURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-                
-                [[NSUserDefaults standardUserDefaults] setObject:responseObject forKey:@"townResponseObject"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
                 
                 self.townName = responseObject[0][@"Name"];
                 
@@ -474,9 +475,9 @@
                         [self.townList addObject:dic[@"Name"]];
                         [self.townIDList addObject:dic[@"ID"]];
                     }
-                [[NSUserDefaults standardUserDefaults] setObject:self.townIDList[0] forKey:@"townID"];
+                self.townID = [NSString stringWithFormat:@"%@",self.townIDList[0]];
+                [[NSUserDefaults standardUserDefaults] setObject:self.townList forKey:@"townResponseObject"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
-               
                 
             } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                 

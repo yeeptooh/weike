@@ -50,7 +50,7 @@
 //缩放比例尺
 #define scaleScreen  Width / 414.0f
 #define BlueColor color(59, 165, 249, 1)
-
+#define MainBlueColor color(9, 152, 205, 1)
 
 #ifdef DEBUG
 # define DLog(fmt, ...) NSLog((@"[文件名:%s]\n" "[函数名:%s]\n" "[行号:%d] \n" fmt), __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__);

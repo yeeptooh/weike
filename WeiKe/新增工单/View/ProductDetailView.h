@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface ProductDetailView : UITableView
-
+@property (nonatomic, assign) NSInteger productID;
+@property (nonatomic, assign) NSInteger classifyID;
 @property (nonatomic, assign) CGRect baseFrame;
 @end

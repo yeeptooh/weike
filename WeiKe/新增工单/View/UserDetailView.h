@@ -16,4 +16,10 @@ UITextFieldDelegate
 >
 
 @property (nonatomic, assign) CGRect baseFrame;
+
+@property (nonatomic, strong) NSString *cityID;
+@property (nonatomic, strong) NSString *discID;
+@property (nonatomic, strong) NSString *townID;
+@property (nonatomic, strong) UIButton *button2;
+@property (nonatomic, strong) UIButton *button3;
 @end

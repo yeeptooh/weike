@@ -11,12 +11,8 @@
 #import "DetailTaskPlanViewController.h"
 #import "AFNetClass.h"
 #import "UserModel.h"
-//#import "TaskPlanToDoTopTableViewCell.h"
-//#import "MyProgressView.h"
-//#import "MBProgressHUD.h"
-
 #import "AFNetworking.h"
-#import "MBProgressHUD.h"
+
 #import "OrderModel.h"
 #define Common_BackColor [UIColor colorWithRed:215/255.0 green:227/255.0 blue:238/255.0 alpha:1]
 
@@ -27,11 +23,13 @@ UITableViewDelegate,
 UITextFieldDelegate
 >
 {
-//    NSMutableArray *dataSource;
     UITapGestureRecognizer *tap;
     NSString *the_TextFiledString;
-
 }
+
+@property (nonatomic, strong) UIView *noOrderView;
+@property (nonatomic, strong) UIView *noNetWorkingView;
+@property (nonatomic, strong) UIView *noSearchResultView;
 
 @property (nonatomic, strong) UITableView *taskPlanToDoTableView;
 @property (nonatomic, strong) UILabel *nilLabel;
@@ -52,8 +50,8 @@ UITextFieldDelegate
 
 @property (nonatomic, assign) NSInteger page;
 @property (nonatomic, assign) NSInteger searchPage;
-@property (nonatomic, strong) MBProgressHUD *HUD;
-@property (nonatomic, strong) MBProgressHUD *searchHUD;
+@property (nonatomic, strong) UIActivityIndicatorView *indicatorView;
+@property (nonatomic, strong) UIActivityIndicatorView *searchIndicatorView;
 
 @property (nonatomic, strong) AFHTTPRequestOperationManager *manager;
 @property (nonatomic, strong) OrderModel *orderModel;
@@ -62,6 +60,81 @@ UITextFieldDelegate
 @end
 
 @implementation UnFinishViewController
+
+- (UIView *)noOrderView {
+    if (!_noOrderView) {
+        _noOrderView = [[UIView alloc]initWithFrame:CGRectMake(0, SearchBarHeight, Width, Height - StatusBarAndNavigationBarHeight - TabbarHeight - SearchBarHeight)];
+        _noOrderView.backgroundColor = [UIColor whiteColor];
+        UIImageView *imageView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"loding_wrong"]];
+        imageView.center = CGPointMake(Width/2, _noOrderView.center.y - imageView.bounds.size.height/2 - 25);
+        UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, Width, 50)];
+        label.center = _noOrderView.center;
+        label.text = @"无订单";
+        label.font = font(18);
+        label.textAlignment = NSTextAlignmentCenter;
+        [_noOrderView addSubview:imageView];
+        [_noOrderView addSubview:label];
+        
+    }
+    return _noOrderView;
+}
+
+- (UIView *)noNetWorkingView {
+    
+    if (!_noNetWorkingView) {
+        _noNetWorkingView = [[UIView alloc]initWithFrame:CGRectMake(0, SearchBarHeight, Width, Height - StatusBarAndNavigationBarHeight - TabbarHeight - SearchBarHeight)];
+        _noNetWorkingView.backgroundColor = [UIColor whiteColor];
+        UIImageView *imageView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"loding_wrong"]];
+        imageView.center = CGPointMake(Width/2, _noNetWorkingView.center.y - imageView.bounds.size.height/2 - 25);
+        UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, Width, 50)];
+        label.center = _noNetWorkingView.center;
+        label.text = @"请检查网络";
+        label.font = font(18);
+        label.textAlignment = NSTextAlignmentCenter;
+        [_noNetWorkingView addSubview:imageView];
+        [_noNetWorkingView addSubview:label];
+        
+    }
+    return _noNetWorkingView;
+}
+
+- (UIView *)noSearchResultView {
+    if (!_noSearchResultView) {
+        _noSearchResultView = [[UIView alloc]initWithFrame:CGRectMake(0, SearchBarHeight, Width, Height - StatusBarAndNavigationBarHeight - TabbarHeight - SearchBarHeight)];
+        _noSearchResultView.backgroundColor = [UIColor whiteColor];
+        UIImageView *imageView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"loding_wrong"]];
+        imageView.center = CGPointMake(Width/2, _noSearchResultView.center.y - imageView.bounds.size.height/2 - 25);
+        UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, Width, 50)];
+        label.center = _noSearchResultView.center;
+        label.text = @"无搜索结果";
+        label.font = font(18);
+        label.textAlignment = NSTextAlignmentCenter;
+        [_noSearchResultView addSubview:imageView];
+        [_noSearchResultView addSubview:label];
+    }
+    return _noSearchResultView;
+}
+
+
+- (UIActivityIndicatorView *)indicatorView {
+    if (!_indicatorView) {
+        _indicatorView = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        _indicatorView.frame = CGRectMake(0, 0, Width, Height);
+        _indicatorView.center = CGPointMake(Width/2, (Height- StatusBarAndNavigationBarHeight)/2);
+        [self.view addSubview:_indicatorView];
+    }
+    return _indicatorView;
+}
+
+- (UIActivityIndicatorView *)searchIndicatorView {
+    if (!_searchIndicatorView) {
+        _searchIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        _searchIndicatorView.frame = CGRectMake(0, 0, Width, Height);
+        _searchIndicatorView.center = CGPointMake(Width/2, (Height- StatusBarAndNavigationBarHeight)/2);
+        [self.searchResultView addSubview:_searchIndicatorView];
+    }
+    return _searchIndicatorView;
+}
 
 
 - (NSMutableArray *)dicList {
@@ -87,12 +160,10 @@ UITextFieldDelegate
         
         _tableView = [[UITableView alloc]initWithFrame:frame style:UITableViewStylePlain];
         _tableView.tag = 300;
-        _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-        _tableView.tableFooterView = [[UIView alloc]init];
+
         _tableView.delegate = self;
         _tableView.dataSource = self;
-        _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-        _tableView.backgroundColor = color(215, 227, 238, 1);
+ 
         __weak typeof(self) weakSelf = self;
         _tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
             [weakSelf loadMoreData];
@@ -110,12 +181,10 @@ UITextFieldDelegate
         frame = CGRectMake(0, SearchBarHeight, Width, Height - StatusBarAndNavigationBarHeight - SearchBarHeight);
         
         _searchResultTableView = [[UITableView alloc]initWithFrame:frame style:UITableViewStylePlain];
-        _searchResultTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         _searchResultTableView.tag = 500;
         _searchResultTableView.tableFooterView = [[UIView alloc]init];
         _searchResultTableView.delegate = self;
         _searchResultTableView.dataSource = self;
-        _searchResultTableView.backgroundColor = color(215, 227, 238, 1);
         __weak typeof(self) weakSelf = self;
         _searchResultTableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
             [weakSelf loadMoreSearchData];
@@ -134,11 +203,11 @@ UITextFieldDelegate
         frame = CGRectMake(0,0, Width, Height - StatusBarAndNavigationBarHeight);
         
         _searchResultView = [[UIView alloc]initWithFrame:frame];
-        _searchResultView.backgroundColor = color(215, 227, 238, 1);
+        _searchResultView.backgroundColor = [UIColor whiteColor];
         _searchResultView.alpha = 0;
         
         UIView *containerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, Width, SearchBarHeight)];
-        containerView.backgroundColor = color(215, 227, 238, 1);
+        containerView.backgroundColor = color(235, 235, 235, 1);
         [_searchResultView addSubview:containerView];
         
         self.whiteView = [[UIView alloc]initWithFrame:CGRectMake(8, 7, Width - 16, SearchBarHeight - 14)];
@@ -179,7 +248,7 @@ UITextFieldDelegate
         
         self.cancelButton = [UIButton buttonWithType:UIButtonTypeCustom];
         [self.cancelButton setTitle:@"取消" forState:UIControlStateNormal];
-        [self.cancelButton setTitleColor:color(51, 102, 255, 1) forState:UIControlStateNormal];
+        [self.cancelButton setTitleColor:BlueColor forState:UIControlStateNormal];
         [self.cancelButton setTitleColor:color(240, 240, 240, 1) forState:UIControlStateHighlighted];
         [self.cancelButton addTarget:self action:@selector(cancelButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
         CGFloat fontsize;
@@ -214,8 +283,7 @@ UITextFieldDelegate
     [super viewDidLoad];
     self.edgesForExtendedLayout = UIRectEdgeNone;
     self.automaticallyAdjustsScrollViewInsets = NO;
-    // Do any additional setup after loading the view.
-    self.view.backgroundColor = color(215, 227, 238, 1);
+
     self.page = 1;
     self.searchPage = 1;
     [self setNavigationBar];
@@ -228,13 +296,15 @@ UITextFieldDelegate
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    self.HUD = [[MBProgressHUD alloc]initWithView:self.view];
-    self.HUD.mode = MBProgressHUDModeIndeterminate;
-    self.HUD.animationType = MBProgressHUDAnimationZoom;
-    [self.view addSubview:self.HUD];
-    
-    [self.HUD showAnimated:YES];
+    if (_noOrderView) {
+        [self.noOrderView removeFromSuperview];
+        self.noOrderView = nil;
+    }
+    if (_noNetWorkingView) {
+        [self.noNetWorkingView removeFromSuperview];
+        self.noNetWorkingView = nil;
+    }
+    [self.indicatorView startAnimating];
     
     [self loadNewDate];
     
@@ -248,8 +318,17 @@ UITextFieldDelegate
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    [self.HUD hideAnimated:YES];
-    [self.HUD removeFromSuperViewOnHide];
+    [self.indicatorView stopAnimating];
+    
+    if (_noOrderView) {
+        [self.noOrderView removeFromSuperview];
+        self.noOrderView = nil;
+    }
+    
+    if (_noNetWorkingView) {
+        [self.noNetWorkingView removeFromSuperview];
+        self.noNetWorkingView = nil;
+    }
     
     if (_searchResultView) {
         [self.searchResultView removeFromSuperview];
@@ -405,9 +484,12 @@ UITextFieldDelegate
     apublishDate = [publishDate  dateByAddingTimeInterval: ainterval];
     NSString *aappointmentTime = [aformatter stringFromDate:apublishDate];
     
-    cell.limitTime.text = [NSString stringWithFormat:@"时限: %@",aappointmentTime];
+    cell.limitTime.text = [NSString stringWithFormat:@"时限 : %@",aappointmentTime];
     
-    cell.User.text = [NSString stringWithFormat:@"%@ %@",self.orderModel.BuyerName,self.orderModel.BuyerPhone];
+    NSMutableAttributedString *attributedString1 = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ %@",self.orderModel.BuyerName,self.orderModel.BuyerPhone]];
+    
+    [attributedString1 addAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor]}range:NSMakeRange(0, self.orderModel.BuyerName.length)];
+    cell.User.attributedText = attributedString1;
     cell.Infoform.text = self.orderModel.InfoFrom;
     cell.UserCity.text = self.orderModel.BuyerDistrict;
     
@@ -417,15 +499,18 @@ UITextFieldDelegate
         cell.OrderID.text = [NSString stringWithFormat:@"[%@]",self.orderModel.SwiftNumber];
     }
     cell.OrderState.text = self.orderModel.StateStr;
-    cell.SendName.text = [NSString stringWithFormat:@"[%@] %@%@",self.orderModel.ServiceClassify,self.orderModel.ProductBreed,self.orderModel.ProductClassify];
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"[%@] %@%@",self.orderModel.ServiceClassify, self.orderModel.ProductBreed, self.orderModel.ProductClassify]];
+   
+    [attributedString addAttributes:@{NSForegroundColorAttributeName:color(248, 89, 34, 1)}range:NSMakeRange(0, self.orderModel.ServiceClassify.length+2)];
     
-    cell.backgroundColor = color(215, 227, 238, 1);
+    cell.SendName.attributedText = attributedString;
+
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-        return 160;
+        return 130;
 
 }
 
@@ -554,8 +639,7 @@ UITextFieldDelegate
     
     [self.manager POST:urlString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-        [weakSelf.HUD hideAnimated:YES];
-        [weakSelf.HUD removeFromSuperViewOnHide];
+        [self.indicatorView stopAnimating];
         
         if (weakSelf.page == 1) {
             if (weakSelf.dicList) {
@@ -566,6 +650,11 @@ UITextFieldDelegate
         for (NSDictionary *dic in responseObject[@"task"]) {
             OrderModel *ordelModel = [OrderModel orderFromDictionary:dic];
             [weakSelf.dicList addObject:ordelModel];
+        }
+        
+        if (!self.dicList.count) {
+            [self.view addSubview:self.noOrderView];
+            return ;
         }
         
         [weakSelf.view addSubview:weakSelf.tableView];
@@ -585,9 +674,7 @@ UITextFieldDelegate
         NSLog(@"---error = %@",error.userInfo);
         [weakSelf.manager.operationQueue cancelAllOperations];
         [weakSelf.tableView.mj_footer endRefreshing];
-        
-        [weakSelf.HUD hideAnimated:YES];
-        [weakSelf.HUD removeFromSuperViewOnHide];
+        [self.indicatorView stopAnimating];
         
         weakSelf.tableView.mj_footer.hidden = YES;
         return ;
@@ -693,12 +780,17 @@ UITextFieldDelegate
     
     [textField resignFirstResponder];
     __weak typeof(self)weakSelf = self;
-    self.searchHUD = [[MBProgressHUD alloc]initWithView:self.searchResultView];
-    self.searchHUD.mode = MBProgressHUDModeIndeterminate;
-    self.searchHUD.animationType = MBProgressHUDAnimationZoom;
-    [self.searchResultView addSubview:self.searchHUD];
+    if (_noSearchResultView) {
+        [self.noSearchResultView removeFromSuperview];
+        self.noSearchResultView = nil;
+    }
+    if (_searchResultTableView) {
+        [self.searchResultTableView removeFromSuperview];
+        self.searchResultTableView = nil;
+    }
     
-    [self.searchHUD showAnimated:YES];
+    
+    [self.searchIndicatorView startAnimating];
     
     NSString *str = textField.text;
     NSString * encodedString = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
@@ -712,14 +804,16 @@ UITextFieldDelegate
     
     [manager GET:urlString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-        [weakSelf.searchHUD hideAnimated:YES];
-        [weakSelf.searchHUD removeFromSuperViewOnHide];
+        [self.searchIndicatorView stopAnimating];
         //        [weakSelf.searchResultList addObject:[responseObject objectForKey:@"task"]];
         for (NSDictionary *dic in responseObject[@"task"]) {
             OrderModel *ordelModel = [OrderModel orderFromDictionary:dic];
             [weakSelf.searchResultList addObject:ordelModel];
         }
-        
+        if (!self.searchResultList.count) {
+            [self.searchResultView addSubview:self.noSearchResultView];
+            return ;
+        }
         [weakSelf.searchResultView addSubview:weakSelf.searchResultTableView];
         [weakSelf.searchResultTableView reloadData];
         
@@ -739,9 +833,7 @@ UITextFieldDelegate
         
         
         [weakSelf.searchResultTableView.mj_footer endRefreshing];
-        
-        [weakSelf.searchHUD hideAnimated:YES];
-        [weakSelf.searchHUD removeFromSuperViewOnHide];
+        [self.searchIndicatorView stopAnimating];
         
         weakSelf.searchResultTableView.mj_footer.hidden = YES;
         return ;
@@ -765,14 +857,15 @@ UITextFieldDelegate
     
     [manager GET:urlString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-        [weakSelf.searchHUD hideAnimated:YES];
-        [weakSelf.searchHUD removeFromSuperViewOnHide];
         //        [weakSelf.searchResultList addObject:[responseObject objectForKey:@"task"]];
         for (NSDictionary *dic in responseObject[@"task"]) {
             OrderModel *ordelModel = [OrderModel orderFromDictionary:dic];
             [weakSelf.searchResultList addObject:ordelModel];
         }
-        
+        if (!self.searchResultList.count) {
+            [self.searchResultView addSubview:self.noSearchResultView];
+            return ;
+        }
         [weakSelf.searchResultView addSubview:weakSelf.searchResultTableView];
         [weakSelf.searchResultTableView reloadData];
         
@@ -793,8 +886,6 @@ UITextFieldDelegate
         
         [weakSelf.searchResultTableView.mj_footer endRefreshing];
         
-        [weakSelf.searchHUD hideAnimated:YES];
-        [weakSelf.searchHUD removeFromSuperViewOnHide];
         
         weakSelf.searchResultTableView.mj_footer.hidden = YES;
         return ;

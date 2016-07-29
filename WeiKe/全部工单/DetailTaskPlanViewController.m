@@ -95,14 +95,9 @@
 UITableViewDataSource,
 UITableViewDelegate,
 UITextFieldDelegate,
-//BMKLocationServiceDelegate,
-//BMKGeoCodeSearchDelegate,
-//UWDatePickerViewDelegate,
 UIViewControllerTransitioningDelegate
-//CLLocationManagerDelegate
 >
 {
-//    NSDictionary *dataSource;
     UIView *blackView;
     UIDatePicker *_datePicker;
     UIButton *button1;
@@ -111,67 +106,25 @@ UIViewControllerTransitioningDelegate
     NSString *time2;
     UITapGestureRecognizer *tap;
     int xcHeight;
-//    BMKLocationService *_locService;
-//    BMKGeoCodeSearch *_geocodesearch;
-    
     UIView * view;
-    
     UIButton * button;
-//    
-//    
-//    BOOL ret;
-//    
-//    BOOL textRet;
-//    BOOL textRet1;
-//    BOOL textRet2;
-//    BOOL textRet3;
-//    BOOL textRet4;
-    
-    
-//    NSString * string ;
-//    
-//    
-//    NSString * tfString1;
-//    NSString * tfString2;
-//    NSString * tfString3;
-//    NSString * tfString4;
-//    
-//    
-//    UITextField* tf;
-    
-
-//    UWDatePickerView *_pickerView;
-    
-//    NSString * dateString;
-    
 }
 
-@property (nonatomic, strong)UITableView *TaskDetailTableView;
-//@property (nonatomic, strong)ApponintmentView *apponintView;
-
-@property (nonatomic, copy)NSString *ProductType;
-@property (nonatomic, copy)NSString *ProductCode;
-@property (nonatomic, copy)NSString *OutNum;
-@property (nonatomic, copy)NSString *BuyShop;
-@property (nonatomic, copy)NSString *BuyTime;
-@property (nonatomic, copy)NSString *ServiceClassify;
-//@property (nonatomic, copy)NSString *BuyerName;
-@property (nonatomic, copy)NSString *BuyerAddress;
-
+@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, copy) NSString *ProductType;
+@property (nonatomic, copy) NSString *ProductCode;
+@property (nonatomic, copy) NSString *OutNum;
+@property (nonatomic, copy) NSString *BuyShop;
+@property (nonatomic, copy) NSString *BuyTime;
+@property (nonatomic, copy) NSString *ServiceClassify;
+@property (nonatomic, copy) NSString *BuyerAddress;
 @property (nonatomic, strong) NSMutableArray *serviceList;
 @property (nonatomic, strong) UIButton *aButton;
-
 @property (nonatomic, strong) UITextField *text;
-
-
 @property (nonatomic, strong) DetailTaskPlanTableViewCell *cell;
 @property (nonatomic, strong) SectionDetailTaskPlanTableViewCell *Scell;
 @property (nonatomic, strong) Section2DetailTableViewCell *scell2;
 @property (nonatomic, strong) NSString *addressString;
-
-//@property (nonatomic, strong) CLLocationManager *manager;
-
-
 
 @property (nonatomic, strong) NSString *buyAddressString;
 
@@ -182,8 +135,6 @@ UIViewControllerTransitioningDelegate
 
 @property (nonatomic, strong) NSMutableArray *nameList;
 @property (nonatomic, strong) NSMutableArray *storeNameList;
-
-
 
 @property (nonatomic, strong) NSMutableArray *fromID;
 @property (nonatomic, strong) NSMutableArray *toID;
@@ -198,8 +149,6 @@ UIViewControllerTransitioningDelegate
 - (UIAlertController *)alertController {
     if (!_alertController) {
         _alertController = [UIAlertController alertControllerWithTitle:@"此应用的照相功能已禁用" message:@"选择确定开启应用的相机功能" preferredStyle:UIAlertControllerStyleAlert];
-        
-        
         UIAlertAction *openAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
             
@@ -254,13 +203,16 @@ UIViewControllerTransitioningDelegate
 }
 
 
-- (UITableView *)TaskDetailTableView {
-    if (!_TaskDetailTableView) {
-        _TaskDetailTableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, Width, Height-StatusBarAndNavigationBarHeight) style:UITableViewStyleGrouped];
-        _TaskDetailTableView.bounces = NO;
-        _TaskDetailTableView.showsVerticalScrollIndicator = NO;
+- (UITableView *)tableView {
+    if (!_tableView) {
+        _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 150, Width, Height-StatusBarAndNavigationBarHeight - 150) style:UITableViewStyleGrouped];
+        _tableView.bounces = NO;
+        _tableView.showsVerticalScrollIndicator = NO;
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+        [self.view addSubview:_tableView];
     }
-    return _TaskDetailTableView;
+    return _tableView;
 }
 
 - (void)viewDidLoad {
@@ -268,54 +220,167 @@ UIViewControllerTransitioningDelegate
     self.edgesForExtendedLayout = UIRectEdgeNone;
     self.automaticallyAdjustsScrollViewInsets = NO;
     [self setNavigationBar];
-    [self setUI];
+    
     [self keyboardAddNotice];
+    [self setBaseView];
+    [self setBottomButton];
+}
 
+- (void)setBaseView {
+    
+    DetailTaskPlanTableViewCell *cell = [[[NSBundle mainBundle]loadNibNamed:@"DetailTaskPlanTableViewCell" owner:self options:nil] lastObject];
+    cell.selectionStyle = UITableViewCellAccessoryNone;
+    [cell.BuyerName setTitle:[NSString stringWithFormat:@"%@",self.orderModel.BuyerName] forState:UIControlStateNormal];
+    
+    [cell.BuyerName addTarget:self action:@selector(BuyerNameButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+    
+    _BuyerAddress = self.orderModel.BuyerShortAddress;
+    
+    cell.BuyerPhone.text = self.orderModel.BuyerPhone;
+    
+    NSString *title;
+    if (!self.addressString) {
+        title = self.orderModel.BuyerShortAddress;
+    }else{
+        if ([self.orderModel.BuyerDistrict isEqualToString:@""]) {
+            title = self.addressString;
+        }else{
+            if ([self.orderModel.BuyerTown isEqualToString:@""]) {
+                title = [NSString stringWithFormat:@"%@%@",self.orderModel.BuyerDistrict,self.addressString];
+            }else{
+                title = [NSString stringWithFormat:@"%@%@%@",self.orderModel.BuyerDistrict,self.orderModel.BuyerTown,self.addressString];
+            }
+        }
+        
+    }
+    
+    [cell.BuyAddress setTitle:title forState:UIControlStateNormal];
+    [cell.BuyAddress addTarget:self action:@selector(BuyAddressButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+    cell.InfoFrom.text = [NSString stringWithFormat:@"来源: %@",self.orderModel.InfoFrom];
+    cell.CallPhone.text = [NSString stringWithFormat:@"来电: %@",self.orderModel.CallPhone];
+    cell.BillCode.text = [NSString stringWithFormat:@"单据: %@",self.orderModel.BillCode];
+    cell.CallPhoneString = self.orderModel.BuyerPhone;
+    UIView *baseView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, Width, 150)];
+    cell.frame = baseView.bounds;
+    [baseView addSubview:cell];
+    
+    [self.view addSubview:baseView];
     
 }
 
-
-#pragma mark - UI
-- (void)setUI {
-    
-    self.TaskDetailTableView.delegate = self;
-    self.TaskDetailTableView.dataSource = self;
-    [self.view addSubview:self.TaskDetailTableView];
-    
+- (void)setBottomButton {
     if ([self.theStatus isEqualToString: @"回访"] || [self.theStatus isEqualToString: @"待完成"]) {
-        self.TaskDetailTableView.frame = CGRectMake(0, 0, Width, Height-StatusBarAndNavigationBarHeight-50);
-        UIView *buttonMainView = [[UIView alloc]initWithFrame:CGRectMake(0, Height- StatusBarAndNavigationBarHeight -50, Width, 50)];
-        buttonMainView.backgroundColor = Common_BackColor;
-        [self.view addSubview:buttonMainView];
-    
-        if ([self.theStatus isEqualToString:@"待完成"]) {
-            NSArray *theArray = @[@"预约",@"完成",@"退单",@"转派"];
-                for (int i = 0; i < 4; i ++) {
-                    int dis = (Width-280)/5;
-                    UIButton *appontmentButton = [[UIButton alloc]initWithFrame:CGRectMake(dis+(70+dis)*i, 8, 70, 35)];
-                    [appontmentButton setBackgroundColor: [UIColor colorWithRed:23/255.0 green:133/255.0 blue:255/255.0 alpha:1]];
-                    [appontmentButton setTitle:theArray[i] forState:0];
-                    appontmentButton.tag = i+101;
-                    [appontmentButton addTarget:self action:@selector(appontmentAciton:) forControlEvents:UIControlEventTouchUpInside];
-                    appontmentButton.layer.cornerRadius = 5;
-                    [buttonMainView addSubview:appontmentButton];
-                }
-        }else if([self.theStatus isEqualToString:@"回访"]){
+        self.tableView.frame = CGRectMake(0, 150, Width, Height-StatusBarAndNavigationBarHeight-TabbarHeight - 150);
         
-            NSArray *theArray = @[@"销售开单",@"配件核销"];
-                for (int i = 0; i < 2; i ++) {
-                    int dis = (Width-240)/3;
-                    UIButton *appontmentButton = [[UIButton alloc]initWithFrame:CGRectMake(dis + (120 + dis) * i, 8, 120, 35)];
-                    [appontmentButton setBackgroundColor: [UIColor colorWithRed:23/255.0 green:133/255.0 blue:255/255.0 alpha:1]];
-                    [appontmentButton setTitle:theArray[i] forState:0];
-                    appontmentButton.tag = i+101;
-                    [appontmentButton addTarget:self action:@selector(appontmentAciton:) forControlEvents:UIControlEventTouchUpInside];
-                    appontmentButton.layer.cornerRadius = 5;
-                    [buttonMainView addSubview:appontmentButton];
-                    
-                }
-            }
+        if ([self.theStatus isEqualToString:@"待完成"]) {
+            
+            UIView *containerView = [[UIView alloc] initWithFrame:CGRectMake(0, Height - StatusBarAndNavigationBarHeight - TabbarHeight, Width, TabbarHeight)];
+            containerView.backgroundColor = color(230, 230, 230, 1);
+            [self.view addSubview:containerView];
+            
+            UIVisualEffectView *effectView = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleExtraLight]];
+            effectView.frame = containerView.bounds;
+            [containerView addSubview:effectView];
+            
+            UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, Width, 0.6)];
+            lineView.backgroundColor = [UIColor lightGrayColor];
+            [effectView.contentView addSubview:lineView];
+            
+            
+            UIButton *completeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            completeButton.frame = CGRectMake(0, 0, Width/4, TabbarHeight);
+            completeButton.backgroundColor = MainBlueColor;
+            [completeButton setTitle:@"预约" forState:UIControlStateNormal];
+            [completeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            completeButton.tag = 101;
+            completeButton.titleLabel.font = font(13);
+            [completeButton addTarget:self action:@selector(appontmentAciton:) forControlEvents:UIControlEventTouchUpInside];
+            [effectView.contentView addSubview:completeButton];
+            
+            UIButton *recedeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            recedeButton.frame = CGRectMake(Width/4, 0, Width/4, TabbarHeight);
+            recedeButton.backgroundColor = MainBlueColor;
+            [recedeButton setTitle:@"完成" forState:UIControlStateNormal];
+            [recedeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            recedeButton.tag = 102;
+            recedeButton.titleLabel.font = font(13);
+            [recedeButton addTarget:self action:@selector(appontmentAciton:) forControlEvents:UIControlEventTouchUpInside];
+            [effectView.contentView addSubview:recedeButton];
+            
+            
+            UIButton *requestButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            requestButton.frame = CGRectMake(Width/2, 0, Width/4, TabbarHeight);
+            [requestButton setTitle:@"退单" forState:UIControlStateNormal];
+            [requestButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            requestButton.titleLabel.font = font(13);
+            requestButton.tag = 103;
+            requestButton.backgroundColor = MainBlueColor;
+            [requestButton addTarget:self action:@selector(appontmentAciton:) forControlEvents:UIControlEventTouchUpInside];
+            [effectView.contentView addSubview:requestButton];
+            
+            
+            UIButton *appendButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            appendButton.frame = CGRectMake(Width*3/4, 0, Width/4, TabbarHeight);
+            
+            [appendButton setTitle:@"转派" forState:UIControlStateNormal];
+            [appendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            appendButton.titleLabel.font = font(13);
+            appendButton.tag = 104;
+            appendButton.backgroundColor = MainBlueColor;
+            [appendButton addTarget:self action:@selector(appontmentAciton:) forControlEvents:UIControlEventTouchUpInside];
+            [effectView.contentView addSubview:appendButton];
+            
+            UIView *colView1 = [[UIView alloc] initWithFrame:CGRectMake(Width/4-0.5, 15, 1, TabbarHeight - 30)];
+            colView1.backgroundColor = [UIColor whiteColor];
+            [effectView.contentView addSubview:colView1];
+            
+            UIView *colView2 = [[UIView alloc] initWithFrame:CGRectMake(Width/2-0.5, 15, 1, TabbarHeight - 30)];
+            colView2.backgroundColor = [UIColor whiteColor];
+            [effectView.contentView addSubview:colView2];
+            
+            UIView *colView3 = [[UIView alloc] initWithFrame:CGRectMake(Width*3/4-0.5, 15, 1, TabbarHeight - 30)];
+            colView3.backgroundColor = [UIColor whiteColor];
+            [effectView.contentView addSubview:colView3];
+         
+        }else if([self.theStatus isEqualToString:@"回访"]){
+            
+            UIView *containerView = [[UIView alloc] initWithFrame:CGRectMake(0, Height - StatusBarAndNavigationBarHeight - TabbarHeight, Width, TabbarHeight)];
+            containerView.backgroundColor = color(230, 230, 230, 1);
+            [self.view addSubview:containerView];
+            
+            UIVisualEffectView *effectView = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleExtraLight]];
+            effectView.frame = containerView.bounds;
+            [containerView addSubview:effectView];
+            
+            UIView *lineView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, Width, 0.6)];
+            lineView.backgroundColor = [UIColor lightGrayColor];
+            [effectView.contentView addSubview:lineView];
+            
+            UIButton *receiveButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            receiveButton.frame = CGRectMake(0, 0, Width/2, TabbarHeight);
+            [receiveButton setTitle:@"销售开单" forState:UIControlStateNormal];
+            
+            [receiveButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            receiveButton.backgroundColor = MainBlueColor;
+            receiveButton.tag = 101;
+            [receiveButton addTarget:self action:@selector(appontmentAciton:) forControlEvents:UIControlEventTouchUpInside];
+            [effectView.contentView addSubview:receiveButton];
+            
+            UIButton *refuseButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            refuseButton.frame = CGRectMake(Width/2, 0, Width/2, TabbarHeight);
+            [refuseButton setTitle:@"配件核销" forState:UIControlStateNormal];
+            [refuseButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            refuseButton.tag = 102;
+            refuseButton.backgroundColor = MainBlueColor;
+            [refuseButton addTarget:self action:@selector(appontmentAciton:) forControlEvents:UIControlEventTouchUpInside];
+            [effectView.contentView addSubview:refuseButton];
+            
+            UIView *colView = [[UIView alloc] initWithFrame:CGRectMake(Width/2-0.7, 15, 1.4, TabbarHeight - 30)];
+            colView.backgroundColor = [UIColor whiteColor];
+            [effectView.contentView addSubview:colView];
+            
         }
+    }
 }
 
 #pragma mark - tableview delegate
@@ -326,20 +391,20 @@ UIViewControllerTransitioningDelegate
     if ([self.theStatus  isEqualToString: @"回访"]) {
         if (self.status == 11) {
 
-            return 4+self.flag;
+            return 3+self.flag;
         }
-        return 5+self.flag;
+        return 4+self.flag;
         
     } else if ([self.theStatus  isEqualToString: @"未完成"]){
-        return 3+self.flag;
+        return 2+self.flag;
     } else if ([self.theStatus  isEqualToString: @"已录入"]) {
-        return 5+self.flag;
-    } else if ([self.theStatus  isEqualToString: @"已核销"]) {
         return 4+self.flag;
+    } else if ([self.theStatus  isEqualToString: @"已核销"]) {
+        return 3+self.flag;
     } else if ([self.theStatus  isEqualToString: @"待审核"]) {
-        return 3+self.flag;
+        return 2+self.flag;
     } else {
-        return 3+self.flag;
+        return 2+self.flag;
     }
     
 }
@@ -353,49 +418,9 @@ UIViewControllerTransitioningDelegate
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    if (indexPath.section == 0) {
-        self.cell = nil;
-        self.cell = [[NSBundle mainBundle]loadNibNamed:@"DetailTaskPlanTableViewCell" owner:self.cell options:nil][0];
-        self.cell.backgroundColor = Common_BackColor;
+    if ((indexPath.section == 0)||(indexPath.section == 1)){
         
-        self.cell.selectionStyle = UITableViewCellAccessoryNone;
-        [self.cell.BuyerName setTitle:[NSString stringWithFormat:@"%@",self.orderModel.BuyerName] forState:UIControlStateNormal];
-        
-        [self.cell.BuyerName addTarget:self action:@selector(BuyerNameButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-
-        _BuyerAddress = self.orderModel.BuyerShortAddress;
-
-        self.cell.BuyerPhone.text = self.orderModel.BuyerPhone;
-
-        NSString *title;
-        if (!self.addressString) {
-            title = self.orderModel.BuyerShortAddress;
-        }else{
-            if ([self.orderModel.BuyerDistrict isEqualToString:@""]) {
-                title = self.addressString;
-            }else{
-                if ([self.orderModel.BuyerTown isEqualToString:@""]) {
-                    title = [NSString stringWithFormat:@"%@%@",self.orderModel.BuyerDistrict,self.addressString];
-                }else{
-                    title = [NSString stringWithFormat:@"%@%@%@",self.orderModel.BuyerDistrict,self.orderModel.BuyerTown,self.addressString];
-                }
-            }
-            
-        }
-        
-        [self.cell.BuyAddress setTitle:title forState:UIControlStateNormal];
-        [self.cell.BuyAddress addTarget:self action:@selector(BuyAddressButtonClick:) forControlEvents:UIControlEventTouchUpInside];
-        self.cell.InfoFrom.text = [NSString stringWithFormat:@"来源: %@",self.orderModel.InfoFrom];
-        self.cell.CallPhone.text = [NSString stringWithFormat:@"来电: %@",self.orderModel.CallPhone];
-        self.cell.BillCode.text = [NSString stringWithFormat:@"单据: %@",self.orderModel.BillCode];
-        self.cell.CallPhoneString = self.orderModel.BuyerPhone;
-        
-        return self.cell;
-        
-    }
-    else if ((indexPath.section == 1)||(indexPath.section == 2)){
-        
-            if (indexPath.section == 1) {
+            if (indexPath.section == 0) {
                 self.scell2 = [[NSBundle mainBundle]loadNibNamed:@"Section2DetailTableViewCell" owner:self.cell options:nil][0];
                 self.scell2.selectionStyle = UITableViewCellAccessoryNone;
                 
@@ -491,7 +516,7 @@ UIViewControllerTransitioningDelegate
         self.Scell.selectionStyle = UITableViewCellAccessoryNone;
         return self.Scell;
     }
-    else if (indexPath.section == 3)
+    else if (indexPath.section == 2)
     {
         if (self.status == 11 || self.status == 15 || [self.theStatus  isEqualToString: @"已录入"]) {
             
@@ -586,7 +611,7 @@ UIViewControllerTransitioningDelegate
             return cell;
         }
     }
-    else if (indexPath.section == 4)
+    else if (indexPath.section == 3)
     {
         if (self.status == 15 || [self.theStatus  isEqualToString: @"已录入"]) {
             
@@ -640,7 +665,7 @@ UIViewControllerTransitioningDelegate
                 return cell;
             }
         }
-    }else if (indexPath.section == 5) {
+    }else if (indexPath.section == 4) {
         
         if ([self.theStatus  isEqualToString: @"已录入"] || self.status == 15) {
             OtherTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"OtherTableViewCell" owner:self.cell options:nil][0];
@@ -703,12 +728,10 @@ UIViewControllerTransitioningDelegate
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
 
     if (indexPath.section == 0) {
-        return 150;
-    }else if (indexPath.section == 1) {
         return 140;
-    }else if (indexPath.section == 2) {
+    }else if (indexPath.section == 1) {
         return 167;
-    }else if (indexPath.section == 3){
+    }else if (indexPath.section == 2){
         
         if ([self.theStatus  isEqualToString: @"回访"] || [self.theStatus  isEqualToString: @"已录入"]) {
             return UITableViewAutomaticDimension;
@@ -718,11 +741,7 @@ UIViewControllerTransitioningDelegate
             return UITableViewAutomaticDimension;
         }
         
-    }else if (indexPath.section == 4){
-//        if ([tableView numberOfSections] == 5 && self.flag == 1) {
-//            return UITableViewAutomaticDimension;
-//        }
-//        return 64;
+    }else if (indexPath.section == 3){
 
         if (self.status == 15 || [self.theStatus isEqualToString:@"已录入"]) {
             return 64;
@@ -747,7 +766,7 @@ UIViewControllerTransitioningDelegate
     title2Label.textAlignment = 2;
     title2Label.font = [UIFont systemFontOfSize:14];
     title2Label.textColor = [UIColor colorWithRed:23/255.0 green:133/255.0 blue:255/255.0 alpha:1];
-    if (section == 1) {
+    if (section == 0) {
 
         titleLabel.text = @"产品信息";
         
@@ -757,7 +776,7 @@ UIViewControllerTransitioningDelegate
         [backView addSubview:title2Label];
         return backView;
     }
-    if (section == 2) {
+    if (section == 1) {
         if (self.serviceList) {
             [self.serviceList removeAllObjects];
         }
@@ -801,7 +820,7 @@ UIViewControllerTransitioningDelegate
         [backView addSubview:self.aButton];
         return backView;
     }
-    if (section == 3) {
+    if (section == 2) {
         
         if ([self.theStatus isEqualToString:@"回访"] || [self.theStatus isEqualToString:@"已录入"]) {
             titleLabel.text = @"完工信息";
@@ -828,7 +847,7 @@ UIViewControllerTransitioningDelegate
   
         
     }
-    if (section == 4) {
+    if (section == 3) {
         
         if ([self.theStatus isEqualToString:@"已录入"] || self.status == 15) {
             titleLabel.text = @"回访结果";
@@ -849,7 +868,7 @@ UIViewControllerTransitioningDelegate
 
     }
     
-    if (section == 5) {
+    if (section == 4) {
         titleLabel.text = @"其他信息";
         UIView *backView = [[UIView alloc]init];
         [backView addSubview:titleLabel];
@@ -1543,6 +1562,49 @@ UIViewControllerTransitioningDelegate
     }
 }
 
+
+#pragma mark - 监听键盘 -
+- (void)keyboardAddNotice {
+    //注册键盘出现的通知
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWasShown:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
+    
+    //注册键盘消失的通知
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillBeHidden:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
+}
+
+
+
+
+- (void)keyboardWasShown:(NSNotification*)aNotification {
+    //添加手势
+    tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapAction:)];
+    tap.numberOfTapsRequired = 1;
+    [self.view addGestureRecognizer:tap];
+}
+
+- (void)keyboardWillBeHidden:(NSNotification*)aNotification {
+    [self.view removeGestureRecognizer:tap];
+}
+
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
+
+#pragma mark - 单击手势 -
+- (void)tapAction:(UITapGestureRecognizer *)tap
+{
+    [self.view endEditing:YES];
+}
+
 #pragma mark - --------------------------------- -
 /*
  路径：/Task.ashx?action=upBuyerName
@@ -1561,8 +1623,6 @@ UIViewControllerTransitioningDelegate
     };
     
     [self presentViewController:changeNameVC animated:YES completion:nil];
-    
-    
     
 }
 
@@ -1723,13 +1783,13 @@ UIViewControllerTransitioningDelegate
         
         //        URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         [manager POST:URL parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
-//            NSString *mstring = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+            //            NSString *mstring = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             
         }];
         
-
+        
     };
     
     [self presentViewController:typeVC animated:YES completion:nil];
@@ -1755,60 +1815,6 @@ UIViewControllerTransitioningDelegate
     
     self.navigationItem.title = @"工单明细";
 }
-
-#pragma mark - 监听键盘 -
-- (void)keyboardAddNotice {
-    //注册键盘出现的通知
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWasShown:)
-                                                 name:UIKeyboardWillShowNotification
-                                               object:nil];
-    
-    //注册键盘消失的通知
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(keyboardWillBeHidden:)
-                                                 name:UIKeyboardWillHideNotification
-                                               object:nil];
-}
-
-
-
-
-- (void)keyboardWasShown:(NSNotification*)aNotification {
-    //添加手势
-    tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapAction:)];
-    tap.numberOfTapsRequired = 1;
-    [self.view addGestureRecognizer:tap];
-}
-
-- (void)keyboardWillBeHidden:(NSNotification*)aNotification {
-    [self.view removeGestureRecognizer:tap];
-}
-
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter]removeObserver:self];
-}
-
-#pragma mark - 单击手势 -
-- (void)tapAction:(UITapGestureRecognizer *)tap
-{
-    [self.view endEditing:YES];
-}
-
-- (void)backLastView:(UIBarButtonItem *)sender {
-//    NSInteger count = self.navigationController.viewControllers.count;
-//    if ([self.navigationController.viewControllers[0] isMemberOfClass:[TaskPlanToDoViewController class]]) {
-//        
-//        [((TaskPlanToDoViewController *)self.navigationController.viewControllers[0]).tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:self.row inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
-//        
-//    }
-    
-    [self.navigationController popViewControllerAnimated:YES];
-}
-
 
 
 @end
