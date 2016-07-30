@@ -28,7 +28,7 @@ UIViewControllerTransitioningDelegate
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     self.transitioningDelegate = self;
-    self.modalTransitionStyle = UIModalPresentationCustom;
+    self.modalPresentationStyle = UIModalPresentationCustom;
     
     UILabel *appointmentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 20, Width/4, 50)];
     appointmentLabel.text = @"预约时间:";
@@ -299,7 +299,7 @@ UIViewControllerTransitioningDelegate
 
     NSString *urlString = [NSString stringWithFormat:@"%@/Task.ashx?action=updateExpectantTime",HomeUrl];
     [manager POST:urlString parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSString *data = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
+//        NSString *data = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
         
         MBProgressHUD *hud = [[MBProgressHUD alloc]initWithView:self.view];
         hud.mode = MBProgressHUDModeText;

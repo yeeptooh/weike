@@ -210,7 +210,6 @@
         NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=SearchChange&changeID=%@",HomeUrl,s];
         [manager GET:URL parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
 
-#warning        s是销售单号
             cancelVC.taskID = s;
             cancelVC.Warehouse = self.button1.titleLabel.text;
             cancelVC.ID = [responseObject[@"product"][0][@"ID"] integerValue];

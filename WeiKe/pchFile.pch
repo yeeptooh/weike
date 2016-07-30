@@ -15,10 +15,13 @@
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
-
+#ifdef __OBJC__
+#import <pop/POP.h>
 #import "MyDefine.h"
 #import "HYBModalTransition.h"
 #import "MJRefresh.h"
+#endif
+
 #define VerifyValue(value)\
 ({id tmp;\
 if ([value isKindOfClass:[NSNull class]])\

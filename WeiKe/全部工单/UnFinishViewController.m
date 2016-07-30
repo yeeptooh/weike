@@ -386,40 +386,8 @@ UITextFieldDelegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
     if (tableView.tag == 300) {
-        
-        if (!self.dicList.count) {
-            if (self.nilLabel) {
-                [self.nilLabel removeFromSuperview];
-            }
-            self.nilLabel = [[UILabel alloc]init];
-            self.nilLabel.frame = CGRectMake(0, Height/2-50, Width, 20);
-            self.nilLabel.text = @"没有相关订单";
-            self.nilLabel.textAlignment = 1;
-            self.nilLabel.textColor = [UIColor lightGrayColor];
-            [self.view addSubview:self.nilLabel];
-            
-        } else {
-            [self.nilLabel removeFromSuperview];
-        }
-        
         return self.dicList.count;
     }else{
-        
-        if (!self.searchResultList.count) {
-            if (self.nilLabel) {
-                [self.nilLabel removeFromSuperview];
-            }
-            self.nilLabel = [[UILabel alloc]init];
-            self.nilLabel.frame = CGRectMake(0, Height/2-50, Width, 20);
-            self.nilLabel.text = @"没有相关订单";
-            self.nilLabel.textAlignment = 1;
-            self.nilLabel.textColor = [UIColor lightGrayColor];
-            [self.view addSubview:self.nilLabel];
-            
-        } else {
-            [self.nilLabel removeFromSuperview];
-        }
-        
         return self.searchResultList.count;
     }
 }
@@ -437,7 +405,7 @@ UITextFieldDelegate
     
     if (!cell) {
         cell = [[NSBundle mainBundle]loadNibNamed:@"TaskPlanToDoTableViewCell" owner:cell options:nil][0];
-        cell.selectionStyle = UITableViewCellAccessoryNone;
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     cell.address.text = self.orderModel.BuyerAddress;
     NSString *timeString = self.orderModel.ExpectantTime;//dataSource[indexPath.row-1][@"ExpectantTime"];
@@ -463,12 +431,11 @@ UITextFieldDelegate
     cell.appointmentTime.text = [NSString stringWithFormat:@"预约 : %@",appointmentTime];
     
     
-    //
-    NSString *atimeString = self.orderModel.CloseTime;//dataSource[indexPath.row-1][@"CloseTime"];
+    NSString *atimeString = self.orderModel.CloseTime;
     NSRange arange = [atimeString rangeOfString:@"("];
     NSRange arange1 = [atimeString rangeOfString:@")"];
     NSInteger aloc = arange.location;
-    NSInteger alen = arange1.location - range.location;
+    NSInteger alen = arange1.location - arange.location;
     NSString *anewtimeString = [atimeString substringWithRange:NSMakeRange(aloc + 1, alen - 1)];
     // 时间戳转时间
     double alastactivityInterval = [anewtimeString doubleValue];
@@ -481,7 +448,7 @@ UITextFieldDelegate
     NSDate *adate = [NSDate date];
     NSTimeZone *azone = [NSTimeZone systemTimeZone];
     NSInteger ainterval = [azone secondsFromGMTForDate:adate];
-    apublishDate = [publishDate  dateByAddingTimeInterval: ainterval];
+    apublishDate = [apublishDate  dateByAddingTimeInterval: ainterval];
     NSString *aappointmentTime = [aformatter stringFromDate:apublishDate];
     
     cell.limitTime.text = [NSString stringWithFormat:@"时限 : %@",aappointmentTime];
@@ -630,14 +597,14 @@ UITextFieldDelegate
     UserModel *usermodel = [UserModel readUserModel];
     
     NSString *urlString = [NSString stringWithFormat:@"%@/Task.ashx?action=getlist&comid=%@&uid=%@&page=%@&query=%@&state=%@ | %@", HomeUrl, [NSNumber numberWithInteger: usermodel.CompanyID], [NSNumber numberWithInteger: usermodel.ID], @(self.page), @"", @"9",@"8"];
-    NSLog(@"usermodel.CompanyID=%@",@(usermodel.CompanyID));
-    NSLog(@"usermodel.ID=%@",@(usermodel.ID));
-//    urlString = [urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
     urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     self.manager = [AFHTTPRequestOperationManager manager];
     self.manager.requestSerializer.timeoutInterval = 5;
     
     [self.manager POST:urlString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        
+        NSLog(@"%@",responseObject);
         
         [self.indicatorView stopAnimating];
         
@@ -671,7 +638,7 @@ UITextFieldDelegate
         [weakSelf.tableView.mj_footer endRefreshing];
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"---error = %@",error.userInfo);
+        
         [weakSelf.manager.operationQueue cancelAllOperations];
         [weakSelf.tableView.mj_footer endRefreshing];
         [self.indicatorView stopAnimating];

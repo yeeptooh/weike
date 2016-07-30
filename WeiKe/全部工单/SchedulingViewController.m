@@ -42,7 +42,7 @@ UIViewControllerTransitioningDelegate
     self.tableView.delegate = self;
     self.tableView.tableFooterView = [[UIView alloc]init];
     self.transitioningDelegate = self;
-    self.modalTransitionStyle = UIModalPresentationCustom;
+    self.modalPresentationStyle = UIModalPresentationCustom;
     
     [self.view addSubview:self.tableView];
 }
@@ -137,13 +137,7 @@ UIViewControllerTransitioningDelegate
         AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
         NSString *URL = [NSString stringWithFormat:@"%@/Product.ashx?action=addChangr",HomeUrl];
         UserModel *um = [UserModel readUserModel];
-        NSLog(@"-%@",[NSNumber numberWithInteger:um.CompanyID]);
-        NSLog(@"--%@",[NSString stringWithFormat:@"%ld",(long)self.ID]);
-        NSLog(@"---%ld",self.ID);
-        NSLog(@"----%@",self.addView.ID);
-        NSLog(@"-----%@",self.addView.saleTextfield.text);
-        NSLog(@"------%@",self.addView.psTextfield.text);
-        NSLog(@"-------%@",um.Name);
+    
         
         NSDictionary *params = @{
                                  @"companyId":[NSNumber numberWithInteger:um.CompanyID],

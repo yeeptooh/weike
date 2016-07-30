@@ -90,12 +90,12 @@
 
 - (void)ensureButtonClicked {
     [self.textfield resignFirstResponder];
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-
-    UserModel *userModel = [UserModel readUserModel];
-    NSString *name = [[NSUserDefaults standardUserDefaults] objectForKey:@"username"];
-    
-    NSString *URL = [NSString stringWithFormat:@"%@Task.ashx?action=up_detail_address",HomeUrl];
+//    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+//
+//    UserModel *userModel = [UserModel readUserModel];
+//    NSString *name = [[NSUserDefaults standardUserDefaults] objectForKey:@"username"];
+//    
+//    NSString *URL = [NSString stringWithFormat:@"%@Task.ashx?action=up_detail_address",HomeUrl];
     
 //    URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 //    

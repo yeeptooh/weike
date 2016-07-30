@@ -99,7 +99,7 @@
     self.button2.titleLabel.font = [UIFont systemFontOfSize:fontSize];
     self.button2.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     [self.button2 setTitleColor:[UIColor blackColor] forState:0];
-    [self.button2 addTarget:self action:@selector(button2Clicked:) forControlEvents:UIControlEventTouchUpInside];
+//    [self.button2 addTarget:self action:@selector(button2Clicked:) forControlEvents:UIControlEventTouchUpInside];
     if ([self.button2.titleLabel.text isEqualToString:@""]) {
         
     }else{
@@ -184,10 +184,9 @@
             for (NSDictionary *dic in responseObject[@"sellWares"]) {
                 [countArr addObject:dic];
             }
-            
-#warning        s是销售单号
+
             addVC.taskID = s;
-            NSLog(@"-00==++%ld",addVC.ID);
+            
             addVC.Warehouse = self.button2.titleLabel.text;
             addVC.countList = countArr;
             addVC.List = arr;

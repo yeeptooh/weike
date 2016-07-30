@@ -23,7 +23,7 @@
         self.CloseTime = dictionary[@"CloseTime"];
         self.BuyerName = dictionary[@"BuyerName"];
         self.BuyerPhone = dictionary[@"BuyerPhone"];
-        
+        self.CollectionMoney = dictionary[@"CollectionMoney"];
         self.InfoFrom = dictionary[@"InfoFrom"];
         self.BuyerCity = dictionary[@"BuyerCity"];
         self.ID = dictionary[@"ID"];

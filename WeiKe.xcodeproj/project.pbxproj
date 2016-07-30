@@ -141,6 +141,12 @@
 		4A6A76621CFED44A007C9743 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A6A76611CFED44A007C9743 /* CoreFoundation.framework */; };
 		4A6A76641CFED477007C9743 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A6A76631CFED477007C9743 /* AdSupport.framework */; };
 		4A82477C1D47568600F66DCF /* ProgressWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A82477B1D47568600F66DCF /* ProgressWebViewController.m */; };
+		4A838DFB1D4C99BB008BB06F /* DialogViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A838DFA1D4C99BB008BB06F /* DialogViewController.m */; };
+		4A838DFE1D4C9AE5008BB06F /* DialogAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A838DFD1D4C9AE5008BB06F /* DialogAnimation.m */; };
+		4A838E021D4C9B96008BB06F /* DialogTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A838E001D4C9B96008BB06F /* DialogTableViewCell.m */; };
+		4A838E031D4C9B96008BB06F /* DialogTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A838E011D4C9B96008BB06F /* DialogTableViewCell.xib */; };
+		4A838E541D4CA376008BB06F /* libPods-WeiKe.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A838E521D4CA376008BB06F /* libPods-WeiKe.a */; };
+		4A838E551D4CA376008BB06F /* libpop.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A838E531D4CA376008BB06F /* libpop.a */; };
 		4A8BE10B1CEB05FD009B0C8A /* CancelTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A8BE1091CEB05FD009B0C8A /* CancelTableViewCell.m */; };
 		4A8BE10C1CEB05FD009B0C8A /* CancelTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A8BE10A1CEB05FD009B0C8A /* CancelTableViewCell.xib */; };
 		4ABB70311CC8DEB200E647D4 /* RefuseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABB70301CC8DEB200E647D4 /* RefuseViewController.m */; };
@@ -233,6 +239,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0A43B9E82F5B886BECEC1138 /* Pods-WeiKe.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeiKe.release.xcconfig"; path = "Pods/Target Support Files/Pods-WeiKe/Pods-WeiKe.release.xcconfig"; sourceTree = "<group>"; };
+		2A8E0F0D76A1F8408461B081 /* Pods-WeiKe.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeiKe.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WeiKe/Pods-WeiKe.debug.xcconfig"; sourceTree = "<group>"; };
 		4A2C802D1CB49B0E00736D44 /* AddViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddViewController.h; sourceTree = "<group>"; };
 		4A2C802E1CB49B0E00736D44 /* AddViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddViewController.m; sourceTree = "<group>"; };
 		4A2C802F1CB49B0E00736D44 /* BreedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BreedViewController.h; sourceTree = "<group>"; };
@@ -491,6 +499,15 @@
 		4A719A171CA26D7D008935A1 /* MyDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDefine.h; sourceTree = "<group>"; };
 		4A82477A1D47568600F66DCF /* ProgressWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressWebViewController.h; sourceTree = "<group>"; };
 		4A82477B1D47568600F66DCF /* ProgressWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressWebViewController.m; sourceTree = "<group>"; };
+		4A838DF91D4C99BB008BB06F /* DialogViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DialogViewController.h; sourceTree = "<group>"; };
+		4A838DFA1D4C99BB008BB06F /* DialogViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DialogViewController.m; sourceTree = "<group>"; };
+		4A838DFC1D4C9AE5008BB06F /* DialogAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DialogAnimation.h; sourceTree = "<group>"; };
+		4A838DFD1D4C9AE5008BB06F /* DialogAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DialogAnimation.m; sourceTree = "<group>"; };
+		4A838DFF1D4C9B96008BB06F /* DialogTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DialogTableViewCell.h; sourceTree = "<group>"; };
+		4A838E001D4C9B96008BB06F /* DialogTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DialogTableViewCell.m; sourceTree = "<group>"; };
+		4A838E011D4C9B96008BB06F /* DialogTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DialogTableViewCell.xib; sourceTree = "<group>"; };
+		4A838E521D4CA376008BB06F /* libPods-WeiKe.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libPods-WeiKe.a"; path = "Pods/../build/Debug-iphoneos/libPods-WeiKe.a"; sourceTree = "<group>"; };
+		4A838E531D4CA376008BB06F /* libpop.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpop.a; path = "Pods/../build/Debug-iphoneos/libpop.a"; sourceTree = "<group>"; };
 		4A8BE1081CEB05FD009B0C8A /* CancelTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CancelTableViewCell.h; sourceTree = "<group>"; };
 		4A8BE1091CEB05FD009B0C8A /* CancelTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CancelTableViewCell.m; sourceTree = "<group>"; };
 		4A8BE10A1CEB05FD009B0C8A /* CancelTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CancelTableViewCell.xib; sourceTree = "<group>"; };
@@ -617,6 +634,7 @@
 		61FF47B51C3D5BC800A9E8FF /* UMSocialWechatHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UMSocialWechatHandler.h; sourceTree = "<group>"; };
 		61FF47B61C3D5BC800A9E8FF /* WXApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXApi.h; sourceTree = "<group>"; };
 		61FF47B71C3D5BC800A9E8FF /* WXApiObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXApiObject.h; sourceTree = "<group>"; };
+		71A341299D5B58EE45E508D3 /* libPods-WeiKe.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WeiKe.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -624,6 +642,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A838E541D4CA376008BB06F /* libPods-WeiKe.a in Frameworks */,
+				4A838E551D4CA376008BB06F /* libpop.a in Frameworks */,
 				4A6A76641CFED477007C9743 /* AdSupport.framework in Frameworks */,
 				4A6A76621CFED44A007C9743 /* CoreFoundation.framework in Frameworks */,
 				4A6A76601CFED3CC007C9743 /* CFNetwork.framework in Frameworks */,
@@ -672,6 +692,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		16DBC7EAAB18DDBF4A40CD18 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				2A8E0F0D76A1F8408461B081 /* Pods-WeiKe.debug.xcconfig */,
+				0A43B9E82F5B886BECEC1138 /* Pods-WeiKe.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		264C722FD9607A3AF49F20DF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4A838E521D4CA376008BB06F /* libPods-WeiKe.a */,
+				4A838E531D4CA376008BB06F /* libpop.a */,
+				71A341299D5B58EE45E508D3 /* libPods-WeiKe.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		4A2C802B1CB49B0E00736D44 /* 新增工单(done) */ = {
 			isa = PBXGroup;
 			children = (
@@ -806,6 +845,8 @@
 				4A67BDB71CE575E8004FEB4A /* ZDDTransition.m */,
 				4A54E7D91CE96CAC0001AC1D /* MyTransition.h */,
 				4A54E7DA1CE96CAC0001AC1D /* MyTransition.m */,
+				4A838DFC1D4C9AE5008BB06F /* DialogAnimation.h */,
+				4A838DFD1D4C9AE5008BB06F /* DialogAnimation.m */,
 			);
 			path = AnimationTransition;
 			sourceTree = "<group>";
@@ -855,6 +896,9 @@
 				4A8BE1081CEB05FD009B0C8A /* CancelTableViewCell.h */,
 				4A8BE1091CEB05FD009B0C8A /* CancelTableViewCell.m */,
 				4A8BE10A1CEB05FD009B0C8A /* CancelTableViewCell.xib */,
+				4A838DFF1D4C9B96008BB06F /* DialogTableViewCell.h */,
+				4A838E001D4C9B96008BB06F /* DialogTableViewCell.m */,
+				4A838E011D4C9B96008BB06F /* DialogTableViewCell.xib */,
 			);
 			name = BaseVC;
 			sourceTree = "<group>";
@@ -1218,6 +1262,8 @@
 				4A67BDC41CE5E435004FEB4A /* BarCodeViewController.m */,
 				4A67BDC61CE5E58D004FEB4A /* BuyShopViewController.h */,
 				4A67BDC71CE5E58D004FEB4A /* BuyShopViewController.m */,
+				4A838DF91D4C99BB008BB06F /* DialogViewController.h */,
+				4A838DFA1D4C99BB008BB06F /* DialogViewController.m */,
 			);
 			name = "修改VC";
 			sourceTree = "<group>";
@@ -1318,6 +1364,8 @@
 				5CBB85E81BFED176005892ED /* WeiKeTests */,
 				5CBB85F31BFED176005892ED /* WeiKeUITests */,
 				5CBB85CA1BFED176005892ED /* Products */,
+				16DBC7EAAB18DDBF4A40CD18 /* Pods */,
+				264C722FD9607A3AF49F20DF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1831,9 +1879,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5CBB85F91BFED176005892ED /* Build configuration list for PBXNativeTarget "WeiKe" */;
 			buildPhases = (
+				CE3F22B6063F805ADE7CDAC2 /* Check Pods Manifest.lock */,
 				5CBB85C51BFED176005892ED /* Sources */,
 				5CBB85C61BFED176005892ED /* Frameworks */,
 				5CBB85C71BFED176005892ED /* Resources */,
+				35CFC668E699C1F5D1D1F20E /* Embed Pods Frameworks */,
+				88BA384ED1009DFCC081AD8B /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1951,6 +2002,7 @@
 				61FF47BC1C3D5BC800A9E8FF /* UMSCommentInputControlleriPad.xib in Resources */,
 				5CBB85DF1BFED176005892ED /* LaunchScreen.storyboard in Resources */,
 				4A8BE10C1CEB05FD009B0C8A /* CancelTableViewCell.xib in Resources */,
+				4A838E031D4C9B96008BB06F /* DialogTableViewCell.xib in Resources */,
 				61FF47C51C3D5BC900A9E8FF /* TencentOpenApi_IOS_Bundle.bundle in Resources */,
 				4A43175E1CA38444009F05C3 /* DetailForthTableViewCell.xib in Resources */,
 				61FF47B81C3D5BC800A9E8FF /* UMSocialLocalizable.strings in Resources */,
@@ -1981,6 +2033,54 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		35CFC668E699C1F5D1D1F20E /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WeiKe/Pods-WeiKe-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		88BA384ED1009DFCC081AD8B /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WeiKe/Pods-WeiKe-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CE3F22B6063F805ADE7CDAC2 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		5CBB85C51BFED176005892ED /* Sources */ = {
@@ -2019,6 +2119,7 @@
 				4A6629F01CCB817500F9E46B /* MJRefreshAutoNormalFooter.m in Sources */,
 				4A6629EA1CCB817500F9E46B /* MJRefreshAutoFooter.m in Sources */,
 				4A4317611CA38444009F05C3 /* DetailTaskPlanViewController.m in Sources */,
+				4A838DFB1D4C99BB008BB06F /* DialogViewController.m in Sources */,
 				4ABB70311CC8DEB200E647D4 /* RefuseViewController.m in Sources */,
 				4A2C804D1CB49B0E00736D44 /* CityViewController.m in Sources */,
 				4A658BF91CA8E03C00549395 /* LGImagePickerSelectView.m in Sources */,
@@ -2077,6 +2178,7 @@
 				4AE4A2A01CC8965900CB93CB /* BackgroundTaskManager.m in Sources */,
 				5CD36DDD1C1042D2000EB0B0 /* UserModel.m in Sources */,
 				4A4703051CA52247004FD6FE /* WECodeScannerMatchView.m in Sources */,
+				4A838E021D4C9B96008BB06F /* DialogTableViewCell.m in Sources */,
 				4A658C131CA8E03C00549395 /* UIImage+GIF.m in Sources */,
 				4A4317621CA38444009F05C3 /* DetailThirdTableViewCell.m in Sources */,
 				4A658C1A1CA8E03C00549395 /* ZLCamera.m in Sources */,
@@ -2125,6 +2227,7 @@
 				4A67BDBF1CE5DAC7004FEB4A /* ChangeAddressViewController.m in Sources */,
 				4A6629FB1CCB817500F9E46B /* UIScrollView+MJRefresh.m in Sources */,
 				4A2C80641CB4ED1900736D44 /* PJRequestTableViewController.m in Sources */,
+				4A838DFE1D4C9AE5008BB06F /* DialogAnimation.m in Sources */,
 				4A2C80541CB49B0E00736D44 /* TownViewController.m in Sources */,
 				4A6629B21CCB472800F9E46B /* SchedulingViewController.m in Sources */,
 				4A6629EF1CCB817500F9E46B /* MJRefreshAutoGifFooter.m in Sources */,
@@ -2295,69 +2398,73 @@
 		};
 		5CBB85FA1BFED176005892ED /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2A8E0F0D76A1F8408461B081 /* Pods-WeiKe.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Yu Guancheng (7JFJ68W47N)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Yu Guancheng (7JFJ68W47N)";
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UM",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UMSocial_Sdk_Extra_Frameworks/TencentOpenAPI",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/BaiduMapAPI",
 				);
+				GCC_INPUT_FILETYPE = automatic;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(PRODUCT_NAME)/pchFile.pch";
 				INFOPLIST_FILE = WeiKe/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UM",
-					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UM/TencentOpenAPI",
-					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UM/Wechat",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UMSocial_Sdk_4.4",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UMSocial_Sdk_Extra_Frameworks/TencentOpenAPI",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UMSocial_Sdk_Extra_Frameworks/Wechat",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.Weike;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
 			name = Debug;
 		};
 		5CBB85FB1BFED176005892ED /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0A43B9E82F5B886BECEC1138 /* Pods-WeiKe.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Yu Guancheng (FGP43E8495)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yu Guancheng (FGP43E8495)";
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UM",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UMSocial_Sdk_Extra_Frameworks/TencentOpenAPI",
 					"$(PROJECT_DIR)",
 					"$(PROJECT_DIR)/BaiduMapAPI",
 				);
+				GCC_INPUT_FILETYPE = automatic;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(PRODUCT_NAME)/pchFile.pch";
 				INFOPLIST_FILE = WeiKe/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UM",
-					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UM/TencentOpenAPI",
-					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UM/Wechat",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UMSocial_Sdk_4.4",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UMSocial_Sdk_Extra_Frameworks/TencentOpenAPI",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third/UMSocial_Sdk_Extra_Frameworks/Wechat",
 					"$(PROJECT_DIR)/WeiKe/我的信息/Third",
 				);
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.com.Weike;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				USER_HEADER_SEARCH_PATHS = "";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
 			name = Release;
 		};

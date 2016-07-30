@@ -46,26 +46,15 @@
 #import "AFNetClass.h"
 #import "MyProgressView.h"
 //#import "BaseMapViewController.h"
-
 #import "UserModel.h"
-//#import "UWDatePickerView.h"
-
-
-//#import "SeachPJViewController.h"
-
 #import "ServiceViewController.h"
 
 #import "AFNetworking.h"
 #import "UserModel.h"
 #import "OrderModel.h"
 
-
-
 #import "MBProgressHUD.h"
 
-
-//#import "ButtonViewController.h"
-//#import <CoreLocation/CoreLocation.h>
 #import "DatePickerViewController.h"
 #import "TypeViewController.h"
 
@@ -86,7 +75,8 @@
 #import "BuyShopViewController.h"
 
 #import <AVFoundation/AVFoundation.h>
-
+#import "DialogViewController.h"
+#import "DialogAnimation.h"
 #define Common_BackColor [UIColor colorWithRed:215/255.0 green:227/255.0 blue:238/255.0 alpha:1]
 
 
@@ -122,8 +112,7 @@ UIViewControllerTransitioningDelegate
 @property (nonatomic, strong) UIButton *aButton;
 @property (nonatomic, strong) UITextField *text;
 @property (nonatomic, strong) DetailTaskPlanTableViewCell *cell;
-@property (nonatomic, strong) SectionDetailTaskPlanTableViewCell *Scell;
-@property (nonatomic, strong) Section2DetailTableViewCell *scell2;
+
 @property (nonatomic, strong) NSString *addressString;
 
 @property (nonatomic, strong) NSString *buyAddressString;
@@ -140,11 +129,18 @@ UIViewControllerTransitioningDelegate
 @property (nonatomic, strong) NSMutableArray *toID;
 
 @property (nonatomic, strong) UIAlertController *alertController;
-
+@property (nonatomic, strong) NSMutableArray *diaLogList;
 
 @end
 
 @implementation DetailTaskPlanViewController
+
+- (NSMutableArray *)diaLogList {
+    if (!_diaLogList) {
+        _diaLogList = [NSMutableArray array];
+    }
+    return _diaLogList;
+}
 
 - (UIAlertController *)alertController {
     if (!_alertController) {
@@ -205,12 +201,12 @@ UIViewControllerTransitioningDelegate
 
 - (UITableView *)tableView {
     if (!_tableView) {
-        _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 150, Width, Height-StatusBarAndNavigationBarHeight - 150) style:UITableViewStyleGrouped];
-        _tableView.bounces = NO;
+        _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 150, Width, Height-StatusBarAndNavigationBarHeight - 150) style:UITableViewStylePlain];
+        _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         _tableView.showsVerticalScrollIndicator = NO;
         _tableView.delegate = self;
         _tableView.dataSource = self;
-        [self.view addSubview:_tableView];
+        
     }
     return _tableView;
 }
@@ -220,7 +216,7 @@ UIViewControllerTransitioningDelegate
     self.edgesForExtendedLayout = UIRectEdgeNone;
     self.automaticallyAdjustsScrollViewInsets = NO;
     [self setNavigationBar];
-    
+    [self.view addSubview:self.tableView];
     [self keyboardAddNotice];
     [self setBaseView];
     [self setBottomButton];
@@ -237,7 +233,7 @@ UIViewControllerTransitioningDelegate
     _BuyerAddress = self.orderModel.BuyerShortAddress;
     
     cell.BuyerPhone.text = self.orderModel.BuyerPhone;
-    
+    [cell.dialogButton addTarget:self action:@selector(disLogButtonClicked) forControlEvents:UIControlEventTouchUpInside];
     NSString *title;
     if (!self.addressString) {
         title = self.orderModel.BuyerShortAddress;
@@ -260,12 +256,45 @@ UIViewControllerTransitioningDelegate
     cell.CallPhone.text = [NSString stringWithFormat:@"来电: %@",self.orderModel.CallPhone];
     cell.BillCode.text = [NSString stringWithFormat:@"单据: %@",self.orderModel.BillCode];
     cell.CallPhoneString = self.orderModel.BuyerPhone;
-    UIView *baseView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, Width, 150)];
+    UIView *baseView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, Width, 155)];
     cell.frame = baseView.bounds;
     [baseView addSubview:cell];
     
     [self.view addSubview:baseView];
     
+}
+
+- (void)disLogButtonClicked {
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    NSString *url = [NSString stringWithFormat:@"%@/Task.ashx?action=getfeedbacklist&taskid=%@",HomeUrl,@(self.ID)];
+    [manager GET:url parameters:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSLog(@"%@",responseObject);
+        if (self.diaLogList.count) {
+            [self.diaLogList removeAllObjects];
+        }
+        
+        for (NSDictionary *dic in responseObject) {
+            [self.diaLogList addObject:dic];
+        }
+        
+        DialogViewController *dialogVC = [[DialogViewController alloc] init];
+        dialogVC.modalPresentationStyle = UIModalPresentationCustom;
+        dialogVC.transitioningDelegate = self;
+        dialogVC.dialogList = self.diaLogList;
+        
+        dialogVC.taskID = [NSString stringWithFormat:@"%@",@(self.ID)];
+        dialogVC.fromUserName = self.fromUserName;
+        dialogVC.fromUserID = self.fromUserID;
+        dialogVC.toUserName = self.toUserName;
+        
+        
+        [self presentViewController:dialogVC animated:YES completion:^{
+            
+        }];
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"error = %@",error.userInfo);
+    }];
 }
 
 - (void)setBottomButton {
@@ -386,11 +415,15 @@ UIViewControllerTransitioningDelegate
 #pragma mark - tableview delegate
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
     
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
     if ([self.theStatus  isEqualToString: @"回访"]) {
         if (self.status == 11) {
-
+            
             return 3+self.flag;
         }
         return 4+self.flag;
@@ -406,129 +439,121 @@ UIViewControllerTransitioningDelegate
     } else {
         return 2+self.flag;
     }
-    
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    
-    return 1;
 }
 
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    if ((indexPath.section == 0)||(indexPath.section == 1)){
+    if (indexPath.row == 0) {
+        Section2DetailTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"Section2DetailTableViewCell" owner:self options:nil][0];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        [cell.ProductType setTitle:self.orderModel.ProductType forState:UIControlStateNormal];
+        cell.paymentLabel.text = [NSString stringWithFormat:@"%@元",self.orderModel.CollectionMoney];
+        cell.ProductType.tag = 2000;
+        [cell.ProductType addTarget:self action:@selector(productTypeBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+        cell.typeLabel.text = [NSString stringWithFormat:@"%@%@",self.orderModel.ProductBreed,self.orderModel.ProductClassify];
+        [cell.ProductNum setTitle:self.orderModel.BarCode forState:UIControlStateNormal];
+        [cell.ProductNum addTarget:self action:@selector(barCodeBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.OutNum setTitle:self.orderModel.BarCode2 forState:UIControlStateNormal];
+        [cell.BuyShop setTitle:self.orderModel.BuyAddress forState:UIControlStateNormal];
+        [cell.BuyShop addTarget:self action:@selector(buyShopBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.BuyTime setTitle:self.orderModel.BuyTimeStr forState:UIControlStateNormal];
+        [cell.BuyTime addTarget:self action:@selector(buyTimeBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.ServiceClassify setTitle:self.orderModel.RepairType forState:0];
+        [cell.ServiceClassify addTarget:self action:@selector(seraction:) forControlEvents:UIControlEventTouchUpInside];
         
-            if (indexPath.section == 0) {
-                self.scell2 = [[NSBundle mainBundle]loadNibNamed:@"Section2DetailTableViewCell" owner:self.cell options:nil][0];
-                self.scell2.selectionStyle = UITableViewCellAccessoryNone;
-                
-                [self.scell2.ProductType setTitle:self.orderModel.ProductType forState:UIControlStateNormal];
-                
-                self.scell2.ProductType.tag = 2000;
-                [self.scell2.ProductType addTarget:self action:@selector(productTypeBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-            
+        if (self.status == 15) {
+            cell.ServiceClassify.enabled = NO;
+            cell.ProductNum.enabled = NO;
+            cell.ProductType.enabled = NO;
+            cell.BuyShop.enabled = NO;
+            cell.BuyTime.enabled = NO;
+        }
+        
+        return cell;
 
-                
-                [self.scell2.ProductNum setTitle:self.orderModel.BarCode forState:UIControlStateNormal];
-                [self.scell2.ProductNum addTarget:self action:@selector(barCodeBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-                
-                [self.scell2.OutNum setTitle:self.orderModel.BarCode2 forState:UIControlStateNormal];
-                
-
-                
-                [self.scell2.BuyShop setTitle:self.orderModel.BuyAddress forState:UIControlStateNormal];
-                
-                [self.scell2.BuyShop addTarget:self action:@selector(buyShopBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-                
-                [self.scell2.BuyTime setTitle:self.orderModel.BuyTimeStr forState:UIControlStateNormal];
-                
-                [self.scell2.BuyTime addTarget:self action:@selector(buyTimeBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-                
-                [self.scell2.ServiceClassify setTitle:self.orderModel.RepairType forState:0];
-                
-                [self.scell2.ServiceClassify addTarget:self action:@selector(seraction:) forControlEvents:UIControlEventTouchUpInside];
-                self.scell2.backgroundColor = Common_BackColor;
-                self.scell2.selectionStyle = UITableViewCellAccessoryNone;
-                return self.scell2;
-
-            }else{
-                
-                self.Scell = [[NSBundle mainBundle]loadNibNamed:@"SectionDetailTaskPlanTableViewCell" owner:self.cell options:nil][0];
-                self.Scell.selectionStyle = UITableViewCellAccessoryNone;
-                NSString *atimeString = self.orderModel.CloseTime;
-                NSRange arange = [atimeString rangeOfString:@"("];
-                NSRange arange1 = [atimeString rangeOfString:@")"];
-                NSInteger aloc = arange.location;
-                NSInteger alen = arange1.location - arange.location;
-                NSString *anewtimeString = [atimeString substringWithRange:NSMakeRange(aloc + 1, alen - 1)];
-                // 时间戳转时间
-                double alastactivityInterval = [anewtimeString doubleValue];
-                NSDateFormatter *aformatter = [[NSDateFormatter alloc] init];
-                [aformatter setDateStyle:NSDateFormatterMediumStyle];
-                [aformatter setTimeStyle:NSDateFormatterShortStyle];
-                [aformatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
-                [aformatter setDateFormat:@"HH:mm"];
-                NSDate *apublishDate = [NSDate dateWithTimeIntervalSince1970:alastactivityInterval/1000];
-                NSDate *adate = [NSDate date];
-                NSTimeZone *azone = [NSTimeZone systemTimeZone];
-                NSInteger ainterval = [azone secondsFromGMTForDate:adate];
-                apublishDate = [apublishDate  dateByAddingTimeInterval: ainterval];
-                NSString *aappointmentTime = [aformatter stringFromDate:apublishDate];
-                
-                self.Scell.CloseTime.text = [NSString stringWithFormat:@"时限: %@",aappointmentTime];
-                self.Scell.ExpectantTime.text = [NSString stringWithFormat:@"预约: %@",self.orderModel.ExpectantTimeStr];
-                self.Scell.BrokenPhenomenon.text = [NSString stringWithFormat:@"故障: %@",self.orderModel.BrokenPhenomenon];
-                self.Scell.BrokenReason.text = [NSString stringWithFormat:@"原因: %@",self.orderModel.BrokenReason];
-                self.Scell.TaskPostscript.text = [NSString stringWithFormat:@"备注: %@",self.orderModel.TaskPostscript];
-                
-                // 时间戳转时间
-                /*
-                 ([self.orderModel.FinishTime isEqualToString:@""] || [self.orderModel.FinishTime isEqual:[NSNull null]])
-                 */
-                if (![self.orderModel.AddTime isEqual:[NSNull null]]) {
-                    NSString *timeString = self.orderModel.AddTime;
-                    NSRange range = [timeString rangeOfString:@"("];
-                    NSRange range1 = [timeString rangeOfString:@")"];
-                    NSInteger loc = range.location;
-                    NSInteger len = range1.location - range.location;
-                    NSString *newtimeString = [timeString substringWithRange:NSMakeRange(loc + 1, len - 1)];
-                    double lastactivityInterval = [newtimeString doubleValue];
-                    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-                    [formatter setDateStyle:NSDateFormatterMediumStyle];
-                    [formatter setTimeStyle:NSDateFormatterShortStyle];
-                    [formatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
-                    [formatter setDateFormat:@"yyyy年MM月dd日 HH:mm"];
-                    NSDate *publishDate = [NSDate dateWithTimeIntervalSince1970:lastactivityInterval/1000];
-                    NSDate *date = [NSDate date];
-                    NSTimeZone *zone = [NSTimeZone systemTimeZone];
-                    NSInteger interval = [zone secondsFromGMTForDate:date];
-                    publishDate = [publishDate  dateByAddingTimeInterval: interval];
-                    NSString *appointmentTime = [formatter stringFromDate:publishDate];
-                    self.Scell.FinishTime.text = [NSString stringWithFormat:@"受理: %@",appointmentTime];
-                }
-                else{
-                    self.Scell.FinishTime.text = @"受理: ";
-                }
-            }
-        self.Scell.backgroundColor = Common_BackColor;
-        self.Scell.selectionStyle = UITableViewCellAccessoryNone;
-        return self.Scell;
-    }
-    else if (indexPath.section == 2)
-    {
+    }else if (indexPath.row == 1) {
+        
+        SectionDetailTaskPlanTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"SectionDetailTaskPlanTableViewCell" owner:self options:nil][0];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        
+        NSString *atimeString = self.orderModel.CloseTime;
+        NSRange arange = [atimeString rangeOfString:@"("];
+        NSRange arange1 = [atimeString rangeOfString:@")"];
+        NSInteger aloc = arange.location;
+        NSInteger alen = arange1.location - arange.location;
+        NSString *anewtimeString = [atimeString substringWithRange:NSMakeRange(aloc + 1, alen - 1)];
+        // 时间戳转时间
+        double alastactivityInterval = [anewtimeString doubleValue];
+        NSDateFormatter *aformatter = [[NSDateFormatter alloc] init];
+        [aformatter setDateStyle:NSDateFormatterMediumStyle];
+        [aformatter setTimeStyle:NSDateFormatterShortStyle];
+        [aformatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+        [aformatter setDateFormat:@"HH:mm"];
+        NSDate *apublishDate = [NSDate dateWithTimeIntervalSince1970:alastactivityInterval/1000];
+        NSDate *adate = [NSDate date];
+        NSTimeZone *azone = [NSTimeZone systemTimeZone];
+        NSInteger ainterval = [azone secondsFromGMTForDate:adate];
+        apublishDate = [apublishDate  dateByAddingTimeInterval: ainterval];
+        NSString *aappointmentTime = [aformatter stringFromDate:apublishDate];
+        
+        cell.CloseTime.text = [NSString stringWithFormat:@"%@",aappointmentTime];
+        cell.ExpectantTime.text = [NSString stringWithFormat:@"%@",self.orderModel.ExpectantTimeStr];
+        cell.BrokenPhenomenon.text = [NSString stringWithFormat:@"%@",self.orderModel.BrokenPhenomenon];
+        cell.BrokenReason.text = [NSString stringWithFormat:@"%@",self.orderModel.BrokenReason];
+        
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"备注:    %@",self.orderModel.TaskPostscript]];
+        
+        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 3)];
+        
+        cell.TaskPostscript.attributedText = attributedString;
+        [cell.businessInfoButton setTitle:self.orderModel.ServiceClassify forState:UIControlStateNormal];
+        [cell.businessInfoButton addTarget:self action:@selector(businessInfoButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+        
+        if (![self.orderModel.AddTime isEqual:[NSNull null]]) {
+            NSString *timeString = self.orderModel.AddTime;
+            NSRange range = [timeString rangeOfString:@"("];
+            NSRange range1 = [timeString rangeOfString:@")"];
+            NSInteger loc = range.location;
+            NSInteger len = range1.location - range.location;
+            NSString *newtimeString = [timeString substringWithRange:NSMakeRange(loc + 1, len - 1)];
+            double lastactivityInterval = [newtimeString doubleValue];
+            NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+            [formatter setDateStyle:NSDateFormatterMediumStyle];
+            [formatter setTimeStyle:NSDateFormatterShortStyle];
+            [formatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+            [formatter setDateFormat:@"yyyy年MM月dd日 HH:mm"];
+            NSDate *publishDate = [NSDate dateWithTimeIntervalSince1970:lastactivityInterval/1000];
+            NSDate *date = [NSDate date];
+            NSTimeZone *zone = [NSTimeZone systemTimeZone];
+            NSInteger interval = [zone secondsFromGMTForDate:date];
+            publishDate = [publishDate  dateByAddingTimeInterval: interval];
+            NSString *appointmentTime = [formatter stringFromDate:publishDate];
+            cell.FinishTime.text = [NSString stringWithFormat:@"%@",appointmentTime];
+        }
+        else{
+            cell.FinishTime.text = @"";
+        }
+        return cell;
+        
+    } else if (indexPath.row == 2) {
+        
         if (self.status == 11 || self.status == 15 || [self.theStatus  isEqualToString: @"已录入"]) {
             
-            DetailThirdTableViewCell *Tcell = [[NSBundle mainBundle]loadNibNamed:@"DetailThirdTableViewCell" owner:self.cell options:nil][0];
-            Tcell.selectionStyle = UITableViewCellAccessoryNone;
-            
+            DetailThirdTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"DetailThirdTableViewCell" owner:self options:nil][0];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
             int price1 = [self.orderModel.PriceAppend intValue];
             int price2 = [self.orderModel.PriceService intValue];
             int price3 = [self.orderModel.PriceMaterials intValue];
-            Tcell.WorkMoney.text = [NSString stringWithFormat:@"收费: %d",price1+price2+price3];
-            Tcell.ServiceClassify.text = self.orderModel.WorkPostscript;
+            
+            NSMutableAttributedString *attributedString1 = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"收费: %@",[NSString stringWithFormat:@"%d",price1+price2+price3]]];
+            
+            [attributedString1 addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 3)];
+            
+            cell.WorkMoney.attributedText = attributedString1;
+            cell.ServiceClassify.text = self.orderModel.WorkPostscript;
             _ServiceClassify = self.orderModel.WorkPostscript;
             
             // 时间戳转时间
@@ -551,202 +576,391 @@ UIViewControllerTransitioningDelegate
                 NSInteger interval = [zone secondsFromGMTForDate:date];
                 publishDate = [publishDate  dateByAddingTimeInterval: interval];
                 NSString *appointmentTime = [formatter stringFromDate:publishDate];
-                Tcell.FinishTime.text = [NSString stringWithFormat:@"完工时间: %@",appointmentTime];
+                NSMutableAttributedString *attributedString2 = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"完工时间: %@",appointmentTime]];
+                
+                [attributedString2 addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                cell.FinishTime.attributedText = attributedString2;
             }else{
-                Tcell.FinishTime.text = @"完工时间: ";
+                cell.FinishTime.text = @"完工时间: ";
+                cell.FinishTime.textColor = color(85, 85, 85, 1);
             }
             
-            Tcell.backgroundColor = Common_BackColor;
-            Tcell.selectionStyle = UITableViewCellAccessoryNone;
-            return Tcell;
-        }else if([self.theStatus isEqualToString:@"未完成"] || [self.theStatus isEqualToString:@"待审核"]){
+            return cell;
+        } else if([self.theStatus isEqualToString:@"未完成"] || [self.theStatus isEqualToString:@"待审核"]){
             
-            OtherTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"OtherTableViewCell" owner:self.cell options:nil][0];
+            OtherTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"OtherTableViewCell" owner:self options:nil][0];
             cell.selectionStyle = UITableViewCellAccessoryNone;
             
             if (self.isCancel) {
-                if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                if (!self.isChange) {
+                    if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.UnFinishRemark]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                        
+                    }
                     
-                }else{
-                    cell.InfoLabel.text = [NSString stringWithFormat:@"退单信息: %@",self.orderModel.UnFinishRemark];
-//                    return cell;
+                    if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.CancelReason]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                    
+                    
+                    
+                    if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.NoEntryReason]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                }else {
+                    if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.UnFinishRemark, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.UnFinishRemark, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                        
+                    }
+                    
+                    if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.CancelReason, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.CancelReason, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                    
+                    
+                    
+                    if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.NoEntryReason, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.NoEntryReason, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
                 }
                 
-                if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
-                    
-                }else{
-                    
-                    cell.InfoLabel.text = [NSString stringWithFormat:@"退单信息: %@",self.orderModel.CancelReason];
-//                    return cell;
-                }
-                
-                
-                
-                if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
-                    
-                }else{
-                    cell.InfoLabel.text = [NSString stringWithFormat:@"退单信息: %@",self.orderModel.NoEntryReason];
-//                    return cell;
-                }
-                
-                
-                if (self.isChange) {
-                    cell.InfoLabel.text = [cell.InfoLabel.text stringByAppendingString:[NSString stringWithFormat:@"\n更换配件: %@",self.orderModel.Change]];
-                }
-                
-                return cell;
             }else if (self.isChange) {
-                cell.InfoLabel.text = [NSString stringWithFormat:@"更换配件: %@",self.orderModel.Change];
+                NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"更换配件: %@",self.orderModel.Change]];
+                
+                [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                cell.InfoLabel.attributedText = attributedString;
+                
             }
             
             return cell;
 
         }else if ([self.theStatus isEqualToString:@"已核销"]) {
-            CancelTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"CancelTableViewCell" owner:self.cell options:nil][0];
+            CancelTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"CancelTableViewCell" owner:self options:nil][0];
             cell.selectionStyle = UITableViewCellAccessoryNone;
             if ([self.orderModel.CancelReason2 isEqual:[NSNull null]]) {
                 self.orderModel.CancelReason2 = @"";
             }
-            cell.cancelLabel.text = [NSString stringWithFormat:@"核销信息: %@",self.orderModel.CancelReason2];
+            NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"核销信息: %@",self.orderModel.CancelReason2]];
+            
+            [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+            cell.cancelLabel.attributedText = attributedString;
+            return cell;
+        }else {
+            OtherTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"OtherTableViewCell" owner:self options:nil][0];
+            cell.selectionStyle = UITableViewCellAccessoryNone;
+            
+            if (self.isCancel) {
+                if (!self.isChange) {
+                    if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.UnFinishRemark]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                        
+                    }
+                    
+                    if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.CancelReason]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                    
+                    
+                    
+                    if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.NoEntryReason]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                }else {
+                    if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.UnFinishRemark, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.UnFinishRemark, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                        
+                    }
+                    
+                    if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.CancelReason, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.CancelReason, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                    
+                    
+                    
+                    if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.NoEntryReason, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.NoEntryReason, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                }
+                
+            }else if (self.isChange) {
+                NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"更换配件: %@",self.orderModel.Change]];
+                
+                [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                cell.InfoLabel.attributedText = attributedString;
+                
+            }
             return cell;
         }
-    }
-    else if (indexPath.section == 3)
-    {
+    } else if (indexPath.row == 3) {
+        
         if (self.status == 15 || [self.theStatus  isEqualToString: @"已录入"]) {
             
-            DetailForthTableViewCell *Fcell = [[NSBundle mainBundle]loadNibNamed:@"DetailForthTableViewCell" owner:self.cell options:nil][0];
-            Fcell.selectionStyle = UITableViewCellAccessoryNone;
+            DetailForthTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"DetailForthTableViewCell" owner:self options:nil][0];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
             int theprice1 = [self.orderModel.MoneyService intValue];
             int theprice2 = [self.orderModel.MoneyMaterials intValue];
             int theprice3 = [self.orderModel.MoneyAppend intValue];
-            Fcell.WorkMoney.text = [NSString stringWithFormat:@"收费: %d",theprice1+theprice2+theprice3];
             
-            Fcell.backgroundColor = Common_BackColor;
-            Fcell.selectionStyle = UITableViewCellAccessoryNone;
-            return Fcell;
+            NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"收费: %d",theprice1+theprice2+theprice3]];
+            
+            [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 3)];
+            
+            cell.WorkMoney.attributedText = attributedString;
+            
+            return cell;
         }else if (self.status == 11 || [self.theStatus isEqualToString:@"已核销"]) {
-            OtherTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"OtherTableViewCell" owner:self.cell options:nil][0];
+            OtherTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"OtherTableViewCell" owner:self options:nil][0];
             cell.selectionStyle = UITableViewCellAccessoryNone;
             if (self.isCancel) {
-                if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                if (!self.isChange) {
+                    if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.UnFinishRemark]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                        
+                    }
                     
-                }else{
-                    cell.InfoLabel.text = [NSString stringWithFormat:@"退单信息: %@",self.orderModel.UnFinishRemark];
-//                    return cell;
+                    if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.CancelReason]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                    
+                    
+                    
+                    if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.NoEntryReason]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                }else {
+                    if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.UnFinishRemark, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.UnFinishRemark, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                        
+                    }
+                    
+                    if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.CancelReason, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.CancelReason, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                    
+                    
+                    
+                    if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.NoEntryReason, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.NoEntryReason, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
                 }
                 
-                if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
-                    
-                }else{
-                    
-                    cell.InfoLabel.text = [NSString stringWithFormat:@"退单信息: %@",self.orderModel.CancelReason];
-//                    return cell;
-                }
-                
-                
-                
-                if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
-                    
-                }else{
-                    cell.InfoLabel.text = [NSString stringWithFormat:@"退单信息: %@",self.orderModel.NoEntryReason];
-                    
-                }
-                
-                
-                if (self.isChange) {
-                    cell.InfoLabel.text = [cell.InfoLabel.text stringByAppendingString:[NSString stringWithFormat:@"\n更换配件: %@",self.orderModel.Change]];
-                }
-                
-                return cell;
             }else if (self.isChange) {
-                cell.InfoLabel.text = [NSString stringWithFormat:@"更换配件: %@",self.orderModel.Change];
-                return cell;
+                NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"更换配件: %@",self.orderModel.Change]];
+                
+                [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                cell.InfoLabel.attributedText = attributedString;
+                
             }
+            return cell;
         }
-    }else if (indexPath.section == 4) {
+    }else if (indexPath.row == 4) {
         
         if ([self.theStatus  isEqualToString: @"已录入"] || self.status == 15) {
-            OtherTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"OtherTableViewCell" owner:self.cell options:nil][0];
+            OtherTableViewCell *cell = [[NSBundle mainBundle]loadNibNamed:@"OtherTableViewCell" owner:self options:nil][0];
             cell.selectionStyle = UITableViewCellAccessoryNone;
             if (self.isCancel) {
-                if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                if (!self.isChange) {
+                    if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.UnFinishRemark]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                        
+                    }
                     
-                }else{
-                    cell.InfoLabel.text = [NSString stringWithFormat:@"退单信息: %@",self.orderModel.UnFinishRemark];
-//                    return cell;
+                    if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.CancelReason]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                    
+                    
+                    
+                    if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@",self.orderModel.NoEntryReason]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                }else {
+                    if ([self.orderModel.UnFinishRemark isEqualToString:@""] || [self.orderModel.UnFinishRemark isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.UnFinishRemark, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.UnFinishRemark, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                        
+                    }
+                    
+                    if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.CancelReason, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.CancelReason, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
+                    
+                    
+                    
+                    if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
+                        
+                    }else{
+                        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.NoEntryReason, self.orderModel.Change]];
+                        
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                        [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)} range:[[NSString stringWithFormat:@"退单信息: %@\n更换配件: %@",self.orderModel.NoEntryReason, self.orderModel.Change] rangeOfString:@"更换配件:"]];
+                        cell.InfoLabel.attributedText = attributedString;
+                    }
                 }
-                
-                if ([self.orderModel.CancelReason isEqualToString:@""] || [self.orderModel.CancelReason isEqual:[NSNull null]]) {
-                    
-                }else{
-                    
-                    cell.InfoLabel.text = [NSString stringWithFormat:@"退单信息: %@",self.orderModel.CancelReason];
-//                    return cell;
-                }
-                
-                
-                
-                if ([self.orderModel.NoEntryReason isEqualToString:@""] || [self.orderModel.NoEntryReason isEqual:[NSNull null]]) {
-                    
-                }else{
-                    cell.InfoLabel.text = [NSString stringWithFormat:@"退单信息: %@",self.orderModel.NoEntryReason];
-                    
-                }
-                
-                
-                if (self.isChange) {
-                    cell.InfoLabel.text = [cell.InfoLabel.text stringByAppendingString:[NSString stringWithFormat:@"\n更换配件: %@",self.orderModel.Change]];
-                }
-                return cell;
                 
             }else if (self.isChange) {
-                cell.InfoLabel.text = [NSString stringWithFormat:@"更换配件: %@",self.orderModel.Change];
-                return cell;
+                NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"更换配件: %@",self.orderModel.Change]];
+                
+                [attributedString addAttributes:@{NSForegroundColorAttributeName:color(85, 85, 85, 1)}range:NSMakeRange(0, 5)];
+                cell.InfoLabel.attributedText = attributedString;
+                
             }
         }
     }
     
-    return self.cell;
+    return nil;
 }
 
-
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
-    if (section == 0) {
-        return CGFLOAT_MIN;
-    }else{
-        return 30;
-    }
-}
-
-
-- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return CGFLOAT_MIN;
-}
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
 
-    if (indexPath.section == 0) {
-        return 140;
-    }else if (indexPath.section == 1) {
-        return 167;
-    }else if (indexPath.section == 2){
-        
-        if ([self.theStatus  isEqualToString: @"回访"] || [self.theStatus  isEqualToString: @"已录入"]) {
-            return UITableViewAutomaticDimension;
-        }else if ([self.theStatus isEqualToString:@"未完成"] || [self.theStatus isEqualToString:@"待审核"]) {
-            return UITableViewAutomaticDimension;
-        }else{
+    if (indexPath.row == 0) {
+        return 190;
+    }else if (indexPath.row == 1) {
+        if ([self.orderModel.TaskPostscript isEqualToString:@""] || !self.orderModel.TaskPostscript) {
             return UITableViewAutomaticDimension;
         }
+        return 192;
+    }else if (indexPath.row == 2){
         
-    }else if (indexPath.section == 3){
+        return UITableViewAutomaticDimension;
+        
+    }else if (indexPath.row == 3){
 
-        if (self.status == 15 || [self.theStatus isEqualToString:@"已录入"]) {
-            return 64;
-        }
-    
         return UITableViewAutomaticDimension;
     
     }else {
@@ -758,127 +972,7 @@ UIViewControllerTransitioningDelegate
     return 50;
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-
-    UILabel *titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(8, 5, 100, 20)];
-    titleLabel.font = [UIFont systemFontOfSize:14];
-    UILabel *title2Label = [[UILabel alloc]initWithFrame:CGRectMake(Width - 220, 5, 200 , 20)];
-    title2Label.textAlignment = 2;
-    title2Label.font = [UIFont systemFontOfSize:14];
-    title2Label.textColor = [UIColor colorWithRed:23/255.0 green:133/255.0 blue:255/255.0 alpha:1];
-    if (section == 0) {
-
-        titleLabel.text = @"产品信息";
-        
-        title2Label.text = [NSString stringWithFormat:@"%@%@",self.orderModel.ProductBreed,self.orderModel.ProductClassify];
-        UIView *backView = [[UIView alloc]init];
-        [backView addSubview:titleLabel];
-        [backView addSubview:title2Label];
-        return backView;
-    }
-    if (section == 1) {
-        if (self.serviceList) {
-            [self.serviceList removeAllObjects];
-        }
-        
-        UserModel *userModel = [UserModel readUserModel];
-        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-        manager.requestSerializer.timeoutInterval = 5;
-        NSString *serviceURLString = [NSString stringWithFormat:@"%@/Task.ashx?action=getservicetype&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,self.orderModel.ID];
-        [manager GET:serviceURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            
-            for (NSDictionary *dic in responseObject[@"servicetype"]) {
-                [self.serviceList addObject:dic[@"Name"]];
-                
-            }
-            
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            MBProgressHUD *HUD = [[MBProgressHUD alloc]initWithView:self.view];
-            HUD.mode = MBProgressHUDModeText;
-            HUD.label.text = @"请检查网络";
-            [self.view addSubview:HUD];
-            [HUD showAnimated:YES];
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.75 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [HUD hideAnimated:YES];
-                [HUD removeFromSuperViewOnHide];
-            });
-        }];
-        
-        
-        titleLabel.text = @"业务信息";
-        self.aButton = [UIButton buttonWithType:UIButtonTypeSystem];
-        self.aButton.frame = CGRectMake(Width - 220, 5, 200 , 20);
-        [self.aButton setTitle:self.orderModel.ServiceClassify forState:UIControlStateNormal];
-        [self.aButton addTarget:self action:@selector(aButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-        self.aButton.tintColor = [UIColor colorWithRed:23/255.0 green:133/255.0 blue:255/255.0 alpha:1];
-        self.aButton.titleLabel.textColor = [UIColor colorWithRed:23/255.0 green:133/255.0 blue:255/255.0 alpha:1];
-        self.aButton.titleLabel.textAlignment = 2;
-        self.aButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
-        self.aButton.titleLabel.font  = [UIFont systemFontOfSize:14];
-        UIView *backView = [[UIView alloc]init];
-        [backView addSubview:titleLabel];
-        [backView addSubview:self.aButton];
-        return backView;
-    }
-    if (section == 2) {
-        
-        if ([self.theStatus isEqualToString:@"回访"] || [self.theStatus isEqualToString:@"已录入"]) {
-            titleLabel.text = @"完工信息";
-            title2Label.text = self.orderModel.WaiterName;
-            UIView *backView = [[UIView alloc]init];
-            [backView addSubview:titleLabel];
-            [backView addSubview:title2Label];
-            return backView;
-        }else if ([self.theStatus isEqualToString:@"已核销"]) {
-            UIView *backView = [[UIView alloc]init];
-            titleLabel.text = @"核销信息";
-            [backView addSubview:titleLabel];
-            
-            return backView;
-
-        }else{
-            UIView *backView = [[UIView alloc]init];
-            titleLabel.text = @"其他信息";
-            [backView addSubview:titleLabel];
-            
-            return backView;
-
-        }
-  
-        
-    }
-    if (section == 3) {
-        
-        if ([self.theStatus isEqualToString:@"已录入"] || self.status == 15) {
-            titleLabel.text = @"回访结果";
-            title2Label.text = [NSString stringWithFormat:@"%@分",self.orderModel.WorkScore];
-            UIView *backView = [[UIView alloc]init];
-            [backView addSubview:titleLabel];
-            [backView addSubview:title2Label];
-            return backView;
-
-        }else if ([self.theStatus isEqualToString:@"已核销"] || self.status == 11) {
-            titleLabel.text = @"其他信息";
-            UIView *backView = [[UIView alloc]init];
-            [backView addSubview:titleLabel];
-            //            [backView addSubview:title2Label];
-            return backView;
-
-        }
-
-    }
-    
-    if (section == 4) {
-        titleLabel.text = @"其他信息";
-        UIView *backView = [[UIView alloc]init];
-        [backView addSubview:titleLabel];
-        //            [backView addSubview:title2Label];
-        return backView;
-    }
-
-    return nil;
-}
-- (void)aButtonClicked:(UIButton *)sender {
+- (void)businessInfoButtonClicked:(UIButton *)sender {
     
     AFNetworkReachabilityManager *reachabilityManager = [AFNetworkReachabilityManager sharedManager];
     [reachabilityManager setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
@@ -917,39 +1011,60 @@ UIViewControllerTransitioningDelegate
                 break;
         }
     }];
-
     
-    ServiceViewController *svc = [[ServiceViewController alloc] init];
-//    if (self.serviceList) {
-//        [self.serviceList removeAllObjects];
-//    }
-    svc.serviceList = self.serviceList;
-    svc.returnService = ^(NSString *name, NSInteger row){
-        [sender setTitle:name forState:UIControlStateNormal];
-        UserModel *userModel = [UserModel readUserModel];
-        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-        //AFN 3840错误,reason:后台返回不是json，而是字符串，必须对response进行（Http）serializer，然后对返回的data变为字符串UTF8编码打印即可
-        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-        
-        NSString *URL = [NSString stringWithFormat:@"%@/Task.ashx?action=upServiceType",HomeUrl];
-        NSDictionary *params = @{
-                                 @"id":self.orderModel.ID,
-                                 @"type":name,
-                                 @"userid":[NSNumber numberWithInteger:userModel.ID],
-                                 @"handler":userModel.Name
-                                 };
-        
-//        URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        [manager POST:URL parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
-//            NSString *string1 = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-            
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            
-        }];
-    };
-    [self presentViewController:svc animated:YES completion:nil];
     
-
+    if (self.serviceList) {
+        [self.serviceList removeAllObjects];
+    }
+    
+    UserModel *userModel = [UserModel readUserModel];
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.requestSerializer.timeoutInterval = 5;
+    NSString *serviceURLString = [NSString stringWithFormat:@"%@/Task.ashx?action=getservicetype&comid=%ld&parent=%@",HomeUrl,(long)userModel.CompanyID,self.orderModel.ID];
+    [manager GET:serviceURLString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        
+        for (NSDictionary *dic in responseObject[@"servicetype"]) {
+            [self.serviceList addObject:dic[@"Name"]];
+            
+        }
+        
+        ServiceViewController *svc = [[ServiceViewController alloc] init];
+        
+        svc.serviceList = self.serviceList;
+        svc.returnService = ^(NSString *name, NSInteger row){
+            [sender setTitle:name forState:UIControlStateNormal];
+            UserModel *userModel = [UserModel readUserModel];
+            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+            //AFN 3840错误,reason:后台返回不是json，而是字符串，必须对response进行（Http）serializer，然后对返回的data变为字符串UTF8编码打印即可
+            manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+            
+            NSString *URL = [NSString stringWithFormat:@"%@/Task.ashx?action=upServiceType",HomeUrl];
+            NSDictionary *params = @{
+                                     @"id":self.orderModel.ID,
+                                     @"type":name,
+                                     @"userid":[NSNumber numberWithInteger:userModel.ID],
+                                     @"handler":userModel.Name
+                                     };
+           
+            [manager POST:URL parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
+     
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                
+            }];
+        };
+        [self presentViewController:svc animated:YES completion:nil];
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        MBProgressHUD *HUD = [[MBProgressHUD alloc]initWithView:self.view];
+        HUD.mode = MBProgressHUDModeText;
+        HUD.label.text = @"请检查网络";
+        [self.view addSubview:HUD];
+        [HUD showAnimated:YES];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.75 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [HUD hideAnimated:YES];
+            [HUD removeFromSuperViewOnHide];
+        });
+    }];
 }
 
 
@@ -1600,8 +1715,7 @@ UIViewControllerTransitioningDelegate
 }
 
 #pragma mark - 单击手势 -
-- (void)tapAction:(UITapGestureRecognizer *)tap
-{
+- (void)tapAction:(UITapGestureRecognizer *)tap {
     [self.view endEditing:YES];
 }
 
@@ -1662,29 +1776,23 @@ UIViewControllerTransitioningDelegate
 
 - (void)productTypeBtnClicked:(UIButton *)sender {
     ProductTypeViewController *typeVC = [[ProductTypeViewController alloc]init];
-    
     typeVC.transitioningDelegate = self;
     typeVC.modalPresentationStyle = UIModalPresentationCustom;
     typeVC.ID = self.ID;
     typeVC.returnType = ^(NSString *type) {
         [sender setTitle:type forState:UIControlStateNormal];
-        
     };
-    
     [self presentViewController:typeVC animated:YES completion:nil];
 }
 
 - (void)barCodeBtnClicked:(UIButton *)sender {
     BarCodeViewController *codeVC = [[BarCodeViewController alloc]init];
-    
     codeVC.transitioningDelegate = self;
     codeVC.modalPresentationStyle = UIModalPresentationCustom;
     codeVC.ID = self.ID;
     codeVC.returnCode = ^(NSString *title) {
         [sender setTitle:title forState:UIControlStateNormal];
-        
     };
-    
     [self presentViewController:codeVC animated:YES completion:nil];
 }
 
@@ -1712,17 +1820,12 @@ UIViewControllerTransitioningDelegate
         NSString *day = [dateStr substringFromIndex:8];
         
         NSString *date = [NSString stringWithFormat:@"%@年%@月%@日",year,month,day];
-        
-        
         [sender setTitle:date forState:UIControlStateNormal];
-        
-        
+
         UserModel *userModel = [UserModel readUserModel];
         AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
         //AFN 3840错误,reason:后台返回不是json，而是字符串，必须对response进行（Http）serializer，然后对返回的data变为字符串UTF8编码打印即可
         manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-        
-        
         
         NSString *URL = [NSString stringWithFormat:@"%@/Task.ashx?action=upBuyTime",HomeUrl];
         NSDictionary *params = @{
@@ -1731,22 +1834,17 @@ UIViewControllerTransitioningDelegate
                                  @"userid":[NSNumber numberWithInteger:userModel.ID],
                                  @"handler":userModel.Name
                                  };
-        
-        //        URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+
         [manager POST:URL parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             
         }];
-        
-        
     };
     [self presentViewController:datePickerVC animated:YES completion:nil];
 }
 
-- (void)seraction:(UIButton *)sender
-{
+- (void)seraction:(UIButton *)sender {
     
     TypeViewController *typeVC = [[TypeViewController alloc]init];
     typeVC.returnType = ^(NSInteger row){
@@ -1766,8 +1864,6 @@ UIViewControllerTransitioningDelegate
             
         }
         
-        
-        
         UserModel *userModel = [UserModel readUserModel];
         AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
         //AFN 3840错误,reason:后台返回不是json，而是字符串，必须对response进行（Http）serializer，然后对返回的data变为字符串UTF8编码打印即可
@@ -1780,18 +1876,13 @@ UIViewControllerTransitioningDelegate
                                  @"userid":[NSNumber numberWithInteger:userModel.ID],
                                  @"handler":userModel.Name
                                  };
-        
-        //        URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+
         [manager POST:URL parameters:params success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            //            NSString *mstring = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             
         }];
-        
-        
     };
-    
     [self presentViewController:typeVC animated:YES completion:nil];
 }
 
@@ -1800,6 +1891,8 @@ UIViewControllerTransitioningDelegate
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
     if ([presented isKindOfClass:[AppointmentViewController class]]) {
         return [MyTransition transitionWithType:MyTransitionTypePresent duration:0.25];
+    } else if ([presented isKindOfClass:[DialogViewController class]]) {
+        return [DialogAnimation dialogAnimationWithType:DialogAnimationTypePresent duration:0.75];
     }
     return [ZDDTransition transitionWithType:ZDDTransitionTypePresent duration:0.25];
 }
@@ -1807,12 +1900,13 @@ UIViewControllerTransitioningDelegate
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
     if ([dismissed isKindOfClass:[AppointmentViewController class]]) {
         return [MyTransition transitionWithType:MyTransitionTypeDissmiss duration:0.25];
+    }else if ([dismissed isKindOfClass:[DialogViewController class]]) {
+        return [DialogAnimation dialogAnimationWithType:DialogAnimationTypeDismiss duration:0.75];
     }
     return [ZDDTransition transitionWithType:ZDDTransitionTypeDissmiss duration:0.25];
 }
 
 -(void)setNavigationBar {
-    
     self.navigationItem.title = @"工单明细";
 }
 

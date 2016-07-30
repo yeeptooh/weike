@@ -25,6 +25,10 @@
 @property (nonatomic, assign, getter=isCancel) BOOL cancel;
 @property (nonatomic, assign, getter=isChange) BOOL change;
 
+@property (nonatomic, strong) NSString *fromUserID;
+@property (nonatomic, strong) NSString *fromUserName;
+@property (nonatomic, strong) NSString *toUserID;
+@property (nonatomic, strong) NSString *toUserName;
 
 /********接收修改属性***********/
 @property (nonatomic, strong) NSString *username;

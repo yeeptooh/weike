@@ -81,6 +81,7 @@
 @property (nonatomic, strong) NSString *PCode;
 
 @property (nonatomic, strong) NSString *PickCode;
+@property (nonatomic, strong) NSString *CollectionMoney;
 
 + (instancetype)orderFromDictionary:(NSDictionary *)dictionary;
 @end

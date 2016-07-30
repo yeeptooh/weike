@@ -124,7 +124,7 @@
     [button setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
     [button setImageEdgeInsets:UIEdgeInsetsMake(13.0f, 0, 13.0f, 100-18)];
     button.titleLabel.textAlignment = NSTextAlignmentLeft;
-    CGSize textSize = XG_TEXTSIZE(title, button.titleLabel.font);
+//    CGSize textSize = XG_TEXTSIZE(title, button.titleLabel.font);
 //    [button setTitleEdgeInsets:UIEdgeInsetsMake(12, 0, 12, 100-textSize.width-25)];
     [button addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *barbutton = [[UIBarButtonItem alloc] initWithCustomView:button];

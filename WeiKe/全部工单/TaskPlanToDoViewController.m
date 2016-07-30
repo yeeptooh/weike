@@ -441,40 +441,8 @@ UITextFieldDelegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
     if (tableView.tag == 300) {
-        
-        if (!self.dicList.count) {
-            if (self.nilLabel) {
-                [self.nilLabel removeFromSuperview];
-            }
-            self.nilLabel = [[UILabel alloc]init];
-            self.nilLabel.frame = CGRectMake(0, Height/2-50, Width, 20);
-            self.nilLabel.text = @"没有相关订单";
-            self.nilLabel.textAlignment = 1;
-            self.nilLabel.textColor = [UIColor lightGrayColor];
-            [self.view addSubview:self.nilLabel];
-            
-        } else {
-            [self.nilLabel removeFromSuperview];
-        }
-        
         return self.dicList.count;
     }else{
-        
-        if (!self.searchResultList.count) {
-            if (self.nilLabel) {
-                [self.nilLabel removeFromSuperview];
-            }
-            self.nilLabel = [[UILabel alloc]init];
-            self.nilLabel.frame = CGRectMake(0, Height/2-50, Width, 20);
-            self.nilLabel.text = @"没有相关订单";
-            self.nilLabel.textAlignment = 1;
-            self.nilLabel.textColor = [UIColor lightGrayColor];
-            [self.view addSubview:self.nilLabel];
-            
-        } else {
-            [self.nilLabel removeFromSuperview];
-        }
-        
         return self.searchResultList.count;
     }
 }
@@ -517,12 +485,11 @@ UITextFieldDelegate
     cell.appointmentTime.text = [NSString stringWithFormat:@"预约 : %@",appointmentTime];
     
     
-    //
-    NSString *atimeString = self.orderModel.CloseTime;//dataSource[indexPath.row-1][@"CloseTime"];
+    NSString *atimeString = self.orderModel.CloseTime;
     NSRange arange = [atimeString rangeOfString:@"("];
     NSRange arange1 = [atimeString rangeOfString:@")"];
     NSInteger aloc = arange.location;
-    NSInteger alen = arange1.location - range.location;
+    NSInteger alen = arange1.location - arange.location;
     NSString *anewtimeString = [atimeString substringWithRange:NSMakeRange(aloc + 1, alen - 1)];
     // 时间戳转时间
     double alastactivityInterval = [anewtimeString doubleValue];
@@ -535,7 +502,7 @@ UITextFieldDelegate
     NSDate *adate = [NSDate date];
     NSTimeZone *azone = [NSTimeZone systemTimeZone];
     NSInteger ainterval = [azone secondsFromGMTForDate:adate];
-    apublishDate = [publishDate  dateByAddingTimeInterval: ainterval];
+    apublishDate = [apublishDate  dateByAddingTimeInterval: ainterval];
     NSString *aappointmentTime = [aformatter stringFromDate:apublishDate];
     
     cell.limitTime.text = [NSString stringWithFormat:@"时限 : %@",aappointmentTime];
@@ -572,8 +539,7 @@ UITextFieldDelegate
  */
 #pragma mark - 跳转到明细工单
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-//    [self.checkManager.operationQueue cancelAllOperations];
+ 
     TaskPlanToDoTableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
     cell.userInteractionEnabled = NO;
 

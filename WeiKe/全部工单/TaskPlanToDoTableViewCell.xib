@@ -133,7 +133,7 @@
                 <outlet property="appointmentTime" destination="sLI-5g-v4T" id="j8B-ep-8Hr"/>
                 <outlet property="limitTime" destination="RHF-3K-LgN" id="cch-FU-vWE"/>
             </connections>
-            <point key="canvasLocation" x="402" y="321"/>
+            <point key="canvasLocation" x="530" y="329"/>
         </tableViewCell>
     </objects>
 </document>

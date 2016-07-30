@@ -9,11 +9,11 @@
 #import <UIKit/UIKit.h>
 
 @interface Section2DetailTableViewCell : UITableViewCell
-//@property (weak, nonatomic) IBOutlet UITextField *ProductTypeTextFiled;
-//@property (weak, nonatomic) IBOutlet UITextField *ProductNumTextFiled;
-//@property (weak, nonatomic) IBOutlet UITextField *OutNumTextFlied;
-//@property (weak, nonatomic) IBOutlet UITextField *BuyShopTextFiled;
-//@property (weak, nonatomic) IBOutlet UITextField *BuyTimeTextFiled;
+
+
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+
+
 @property (weak, nonatomic) IBOutlet UIButton *ServiceClassify;
 
 @property (weak, nonatomic) IBOutlet UIButton *ProductType;
@@ -26,19 +26,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *BuyTime;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+@property (weak, nonatomic) IBOutlet UILabel *paymentLabel;
 
 
 @end

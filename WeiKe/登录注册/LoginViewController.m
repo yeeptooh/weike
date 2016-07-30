@@ -133,7 +133,7 @@ UITextFieldDelegate
             model.CompanyID = [response[@"user"][0][@"CompanyID"]integerValue];
             [UserModel writeUserModel:model];
             
-            //保存用户名和密码
+            
             [self saveWords];
             //保存登录状态
             [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"hadLogin"];

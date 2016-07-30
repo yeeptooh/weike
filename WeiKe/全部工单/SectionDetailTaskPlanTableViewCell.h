@@ -10,6 +10,8 @@
 
 @interface SectionDetailTaskPlanTableViewCell : UITableViewCell
 
+@property (weak, nonatomic) IBOutlet UIButton *businessInfoButton;
+
 @property (weak, nonatomic) IBOutlet UILabel *ExpectantTime;//预约
 @property (weak, nonatomic) IBOutlet UILabel *BrokenPhenomenon;
 @property (weak, nonatomic) IBOutlet UILabel *BrokenReason;

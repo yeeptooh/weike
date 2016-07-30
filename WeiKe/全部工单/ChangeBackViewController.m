@@ -376,7 +376,7 @@ UINavigationControllerDelegate
     NSString*urlString=[NSString stringWithFormat:@"%@/Task.ashx",HomeUrl];
     NSDictionary*params = @{
                             @"action":@"updateUnFinish",
-                            @"taskID":[NSNumber numberWithInt:_taskID],
+                            @"taskID":@(_taskID),
                             @"WaiterName":_WaiterName,
                             @"DropCancelReason":self.theButton.titleLabel.text,
                             @"reason":textFiled.text
