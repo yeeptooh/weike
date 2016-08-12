@@ -12,9 +12,7 @@
 #import "AFNetClass.h"
 #import "UserModel.h"
 #import "AFNetworking.h"
-
 #import "OrderModel.h"
-#define Common_BackColor [UIColor colorWithRed:215/255.0 green:227/255.0 blue:238/255.0 alpha:1]
 
 @interface UnFinishViewController ()
 <
@@ -22,10 +20,9 @@ UITableViewDataSource,
 UITableViewDelegate,
 UITextFieldDelegate
 >
-{
-    UITapGestureRecognizer *tap;
-    NSString *the_TextFiledString;
-}
+
+@property (nonatomic, strong) UITapGestureRecognizer *tap;
+@property (nonatomic, strong) NSString *textfieldString;
 
 @property (nonatomic, strong) UIView *noOrderView;
 @property (nonatomic, strong) UIView *noNetWorkingView;
@@ -154,19 +151,24 @@ UITextFieldDelegate
 
 - (UITableView *)tableView {
     if (!_tableView) {
-        
-        CGRect frame;
-        frame = CGRectMake(0, SearchBarHeight, Width, Height - StatusBarAndNavigationBarHeight - SearchBarHeight);
-        
-        _tableView = [[UITableView alloc]initWithFrame:frame style:UITableViewStylePlain];
+
+        _tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, SearchBarHeight, Width, Height - StatusBarAndNavigationBarHeight - SearchBarHeight) style:UITableViewStylePlain];
         _tableView.tag = 300;
 
         _tableView.delegate = self;
         _tableView.dataSource = self;
- 
-        __weak typeof(self) weakSelf = self;
+        /**
+         *
+         *  self -> tableView 
+         *  tableView ->mj_footer
+         *  mj_footer ->self
+         *
+         */
+        //strong - weak dance
+        __weak typeof(self) weakSelf = self;//防止循环引用
         _tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-            [weakSelf loadMoreData];
+            __strong typeof(weakSelf) strongSelf = weakSelf;//防止在block内部将weakSelf释放
+            [strongSelf loadMoreData];
         }];
         
     }
@@ -647,9 +649,6 @@ UITextFieldDelegate
         return ;
         
     }];
-        
-        
-    
     
 }
 
@@ -677,12 +676,10 @@ UITextFieldDelegate
     searchButton.frame = CGRectMake(8, 7, Width - 16, SearchBarHeight - 14);
     [self.view addSubview:searchButton];
     
-    
-    
 }
 
 - (void)searchButtonClicked:(UIButton *)sender {
-    NSLog(@"1234312123");
+    
     self.searchPage = 1;
     if (self.searchResultView) {
         [self.searchResultView removeFromSuperview];
@@ -763,7 +760,7 @@ UITextFieldDelegate
     NSString * encodedString = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
                                                                                                      (CFStringRef)str,NULL,NULL,kCFStringEncodingUTF8));
     
-    the_TextFiledString = encodedString;
+    self.textfieldString = encodedString;
     UserModel *usermodel = [UserModel readUserModel];
     NSString *urlString = [NSString stringWithFormat:@"%@/Task.ashx?action=getlist&comid=%@&uid=%@&page=%@&query=%@&state=%@ | %@",HomeUrl,[NSNumber numberWithInteger: usermodel.CompanyID],[NSNumber numberWithInteger: usermodel.ID],@(self.searchPage),encodedString,@"9",@"8"];
     urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
@@ -818,7 +815,7 @@ UITextFieldDelegate
     __weak typeof(self)weakSelf = self;
     
     UserModel *usermodel = [UserModel readUserModel];
-    NSString *urlString = [NSString stringWithFormat:@"%@/Task.ashx?action=getlist&comid=%@&uid=%@&page=%@&query=%@&state=%@ | %@",HomeUrl,[NSNumber numberWithInteger: usermodel.CompanyID],[NSNumber numberWithInteger: usermodel.ID],@(self.searchPage),the_TextFiledString,@"9",@"8"];
+    NSString *urlString = [NSString stringWithFormat:@"%@/Task.ashx?action=getlist&comid=%@&uid=%@&page=%@&query=%@&state=%@ | %@",HomeUrl,[NSNumber numberWithInteger: usermodel.CompanyID],[NSNumber numberWithInteger: usermodel.ID],@(self.searchPage),self.textfieldString,@"9",@"8"];
     urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
@@ -860,26 +857,16 @@ UITextFieldDelegate
     
 }
 
-
-
-
 #pragma mark - 键盘 -
 - (void)keyboardWasShown:(NSNotification*)aNotification {
     //添加手势
-    tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapAction:)];
-    tap.numberOfTapsRequired = 1;
-    [self.view addGestureRecognizer:tap];
+    self.tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapAction:)];
+    self.tap.numberOfTapsRequired = 1;
+    [self.view addGestureRecognizer:self.tap];
 }
 
 - (void)keyboardWillBeHidden:(NSNotification*)aNotification {
-    [self.view removeGestureRecognizer:tap];
+    [self.view removeGestureRecognizer:self.tap];
 }
-
-//- (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
-//    the_TextFiledString = textField.text;
-//    return YES;
-//}
-
-
 
 @end

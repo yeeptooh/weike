@@ -42,7 +42,7 @@ UIViewControllerTransitioningDelegate
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
 }
 
 - (void)backBtnClicked:(UIButton *)sender {
@@ -67,8 +67,6 @@ UIViewControllerTransitioningDelegate
     }
     
     cell.textLabel.text = self.breedList[indexPath.row];
-    
-    
     return cell;
 }
 

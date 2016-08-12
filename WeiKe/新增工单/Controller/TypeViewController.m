@@ -22,8 +22,7 @@ UIViewControllerTransitioningDelegate
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-//    self.edgesForExtendedLayout = UIRectEdgeNone;
-//    self.automaticallyAdjustsScrollViewInsets = NO;
+
     self.tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 25, Width, self.view.bounds.size.height - 250 ) style:UITableViewStylePlain];
     UIButton *backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     backBtn.frame = CGRectMake(Width*6/7, 5, 20, 20);
@@ -40,11 +39,6 @@ UIViewControllerTransitioningDelegate
     self.modalPresentationStyle = UIModalPresentationCustom;
     
     [self.view addSubview:self.tableView];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)backBtnClicked:(UIButton *)sender {

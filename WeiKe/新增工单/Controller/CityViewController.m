@@ -29,9 +29,7 @@ UIViewControllerTransitioningDelegate
     [backBtn setImage:[UIImage imageNamed:@"icon_login_close_pre"] forState:UIControlStateNormal];
     [backBtn setImage:[UIImage imageNamed:@"icon_login_close_nor"] forState:UIControlStateHighlighted];
     [backBtn addTarget:self action:@selector(backBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-    
     [self.view addSubview:backBtn];
-    
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     self.tableView.tableFooterView = [[UIView alloc]init];
@@ -43,11 +41,6 @@ UIViewControllerTransitioningDelegate
 
 - (void)backBtnClicked:(UIButton *)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -67,10 +60,7 @@ UIViewControllerTransitioningDelegate
     if (!cell) {
         cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identifier];
     }
-    
     cell.textLabel.text = self.cityList[indexPath.row];
-    
-    
     return cell;
 }
 

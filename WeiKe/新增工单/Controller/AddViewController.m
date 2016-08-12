@@ -16,7 +16,6 @@
 #import "MBProgressHUD.h"
 @interface AddViewController ()
 
-
 @property (nonatomic, strong) UserDetailView *userDetailView;
 @property (nonatomic, strong) ProductDetailView *productDetailView;
 @property (nonatomic, strong) BusinessDetailView *businessDetailView;
@@ -41,13 +40,11 @@
 @property (nonatomic, strong) UILabel *serveLabel;
 @property (nonatomic, strong) UILabel *guaranteeLabel;
 
-
 @property (nonatomic, strong) UIView *userInfoDetailView;
 @property (nonatomic, strong) UIView *productInfoDetailView;
 @property (nonatomic, strong) UIView *businessInfoDetailView;
 
 @property (nonatomic, strong) UITapGestureRecognizer *tap;
-
 @property (nonatomic, strong) UITapGestureRecognizer *tapUserInfo;
 @property (nonatomic, strong) UITapGestureRecognizer *tapProductInfo;
 @property (nonatomic, strong) UITapGestureRecognizer *tapBusinessInfo;
@@ -245,7 +242,6 @@
 }
 
 
-
 - (UIView *)configEveryItemWithName:(NSString *)labelName lineNumber:(NSInteger)lineNumber ReturnKeyType:(UIReturnKeyType)returnKeyType willShowTableView:(BOOL)willShow Label:(UILabel *)label {
     
     UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, ((Height - StatusBarAndNavigationBarHeight)-4) * (lineNumber-1)/12, Width, (Height - StatusBarAndNavigationBarHeight)/12)];
@@ -434,7 +430,6 @@
 
 - (void)saveButtonClicked:(UIButton *)sender {
     
-    NSLog(@"self.userDetailView.button3.titleLabel.text = %@",self.userDetailView.button3.titleLabel.text);
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     UserModel *userModel = [UserModel readUserModel];
     
@@ -445,7 +440,6 @@
         _nameHUD = [[MBProgressHUD alloc]initWithView:self.view];
         _nameHUD.mode = MBProgressHUDModeText;
         _nameHUD.label.text = @"请填写姓名";
-        
         _nameHUD.label.font = [UIFont systemFontOfSize:14];
         [self.view addSubview:_nameHUD];
         [self.nameHUD showAnimated:YES];
@@ -473,12 +467,10 @@
     }
     UITextField *billCode = [self.userDetailView viewWithTag:102];
     
-    NSInteger productBreedID = self.productDetailView.productID;//[[NSUserDefaults standardUserDefaults] integerForKey:@"productID"];
+    NSInteger productBreedID = self.productDetailView.productID;
     UIButton *breedName = [self.productDetailView viewWithTag:200];
-    
-    NSString *classifyID = [NSString stringWithFormat:@"%@",@(self.productDetailView.classifyID)];//[[NSUserDefaults standardUserDefaults] objectForKey:@"classifyID"];
+    NSString *classifyID = [NSString stringWithFormat:@"%@",@(self.productDetailView.classifyID)];
     UIButton *classifyName = [self.productDetailView viewWithTag:201];
-    
     UITextField *typeName = [self.productDetailView viewWithTag:102];
     UITextField *productCount = [self.productDetailView viewWithTag:103];
     if (productCount.text.length == 0) {

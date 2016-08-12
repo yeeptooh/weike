@@ -38,7 +38,6 @@ UIViewControllerTransitioningDelegate
     [backBtn setTitleColor:color(245, 245, 245, 1) forState:UIControlStateNormal];
     [backBtn setTitleColor:color(210, 210, 210, 1) forState:UIControlStateHighlighted];
     [backBtn addTarget:self action:@selector(backBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
-    
     [self.view addSubview:backBtn];
     
     UIButton *saveBtn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -57,21 +56,14 @@ UIViewControllerTransitioningDelegate
     
     NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
     [formatter setDateFormat:@"yyyy-MM-dd"];
-    
     NSString *dateString = [formatter stringFromDate:self.datePicker.date];
-        
     self.returnDate(dateString);
-    
     [self dismissViewControllerAnimated:YES completion:nil];
     
 }
 
 - (void)backBtnClicked:(UIButton *)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
-}
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source {
@@ -81,7 +73,5 @@ UIViewControllerTransitioningDelegate
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed {
     return [HYBModalTransition transitionWithType:kHYBModalTransitionDismiss duration:0.25 presentHeight:350 scale:CGPointMake(0.9, 0.9)];
 }
-
-
 
 @end
