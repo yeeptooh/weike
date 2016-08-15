@@ -379,7 +379,7 @@ UITextFieldDelegate
     self.manager.requestSerializer.timeoutInterval = 5;
     
     [self.manager POST:theUrlString parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"%@",responseObject);
+        
         [self.indicatorView stopAnimating];
         
         if (weakSelf.page == 1) {
@@ -456,7 +456,7 @@ UITextFieldDelegate
     }
     cell.address.text = self.orderModel.BuyerAddress;
     NSString *timeString = self.orderModel.ExpectantTime;
-    NSLog(@"timeString = %@",timeString);
+    
     //dataSource[indexPath.row-1][@"ExpectantTime"];
     NSRange range = [timeString rangeOfString:@"("];
     NSRange range1 = [timeString rangeOfString:@")"];
